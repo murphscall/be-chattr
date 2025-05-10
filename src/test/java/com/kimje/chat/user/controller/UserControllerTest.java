@@ -19,6 +19,45 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 class UserControllerTest {
 
+  @Autowired
+  private MockMvc mockMvc;
 
+  @MockitoBean
+  private UserService userService;  // 컨트롤러가 의존하는 빈은 Mock 처리
 
-};
+  @Test
+  void create_success() throws Exception {
+
+    String jsonRequest = """
+            {
+                "email": "rlawlsgn22@gmail.com",
+                "password": "sy8583lk^^",
+                "name": "김돌돌",
+                "phone": "010-2212-9624"
+            }
+            """;
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+        .andExpect(status().isCreated());
+  }
+
+  @Test
+  void create_fail() throws Exception {
+    String jsonRequest = """
+            {
+                "email": "rlawlsgn22@gmail.com",
+                "password": "sy8583",
+                "name": "홍길동",
+                "phone": "010-2212-9624"
+            }
+            """;
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.data.password").exists());
+  }
+}
