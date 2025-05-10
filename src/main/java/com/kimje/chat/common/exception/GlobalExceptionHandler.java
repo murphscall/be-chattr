@@ -1,6 +1,7 @@
 package com.kimje.chat.common.exception;
 
 import com.kimje.chat.common.response.ApiResponse;
+import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +19,11 @@ public class GlobalExceptionHandler {
   }
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<ApiResponse<?>> handleIllegalStateException(IllegalStateException e) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
+  }
+
+  @ExceptionHandler(MessagingException.class)
+  public ResponseEntity<ApiResponse<?>> handleMessagingException(MessagingException e) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
   }
 
