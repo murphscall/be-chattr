@@ -1,5 +1,6 @@
 package com.kimje.chat.user.controller;
 
+import com.kimje.chat.common.exception.FieldErrorException;
 import com.kimje.chat.common.response.ApiResponse;
 import com.kimje.chat.user.dto.UserRequestDTO;
 import com.kimje.chat.user.service.UserService;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,7 +27,7 @@ public class UserController {
             fieldErrorsHandler(result);
         }
         userService.createUser(dto);
-        return null;
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/api/users")
@@ -40,13 +42,14 @@ public class UserController {
         return null;
     }
 
-    public void fieldErrorsHandler(BindingResult bindingResult){
+    public void fieldErrorsHandler(BindingResult result){
         Map<String, String> errors = new HashMap<>();
-        bindingResult
-                .getFieldErrors()
-                .forEach(fieldError -> errors.put(fieldError.getField(), fieldError.getDefaultMessage()));
 
+        for(FieldError error : result.getFieldErrors()){
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
 
+        throw new FieldErrorException(errors);
     }
 
 
