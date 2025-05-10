@@ -6,7 +6,6 @@ import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
 import com.kimje.chat.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,13 +16,21 @@ public class UserService {
 
 
     public void createUser(UserRequestDTO.Create dto) {
+
+        userRepository
+            .findByEmail(dto.getEmail())
+            .ifPresent(user ->{
+                throw new IllegalStateException("중복된 이메일 입니다.");
+            });
+
         Users user = dto.toEntity();
         user.setRole(UserRole.ROLE_USER);
 
-        UserLogin userLogin = new UserLogin();
-        userLogin.setLoginType("NORMAL");
-        userLogin.setProviderId(dto.getEmail());
-        userLogin.setUser(user);
+        UserLogin userLogin = UserLogin.builder()
+            .loginType("NORMAL")
+            .providerId(dto.getEmail())
+            .user(user)
+            .build();
 
         user.getUserLogins().add(userLogin);
         userRepository.save(user);
