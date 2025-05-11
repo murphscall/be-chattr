@@ -1,7 +1,6 @@
 package com.kimje.chat.user.enums;
 
 import lombok.Getter;
-import org.apache.catalina.User;
 
 @Getter
 public enum UserRole {
