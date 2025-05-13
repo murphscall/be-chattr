@@ -1,4 +1,4 @@
-package com.kimje.chat.common.exception;
+package com.kimje.chat.global.exception;
 
 import java.util.Map;
 import lombok.Getter;

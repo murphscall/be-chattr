@@ -1,4 +1,4 @@
-package com.kimje.chat.config.redis;
+package com.kimje.chat.global.config;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;

@@ -1,13 +1,12 @@
 package com.kimje.chat.emailauth.service;
 
-import com.kimje.chat.common.exception.InvalidVerificationCodeException;
-import com.kimje.chat.common.exception.VerificationCodeExpiredException;
-import com.kimje.chat.common.util.EmailVerifyPassGenerator;
+import com.kimje.chat.global.exception.InvalidVerificationCodeException;
+import com.kimje.chat.global.exception.VerificationCodeExpiredException;
+import com.kimje.chat.global.util.EmailVerifyPassGenerator;
 import com.kimje.chat.emailauth.dto.EmailRequestDTO;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.concurrent.TimeUnit;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;

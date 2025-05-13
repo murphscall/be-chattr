@@ -1,4 +1,4 @@
-package com.kimje.chat.common.util;
+package com.kimje.chat.global.util;
 
 import java.util.Random;
 import org.springframework.stereotype.Component;
