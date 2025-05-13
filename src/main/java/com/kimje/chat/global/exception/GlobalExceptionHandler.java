@@ -1,14 +1,11 @@
-package com.kimje.chat.common.exception;
+package com.kimje.chat.global.exception;
 
-import com.kimje.chat.common.response.ApiResponse;
-import com.kimje.chat.emailauth.controller.EmailController;
-import com.kimje.chat.user.controller.UserController;
+import com.kimje.chat.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Hidden

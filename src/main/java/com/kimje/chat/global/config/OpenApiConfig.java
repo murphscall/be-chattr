@@ -1,4 +1,4 @@
-package com.kimje.chat.config.swagger;
+package com.kimje.chat.global.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

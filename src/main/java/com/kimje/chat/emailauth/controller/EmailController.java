@@ -1,14 +1,12 @@
 package com.kimje.chat.emailauth.controller;
 
-import com.kimje.chat.common.response.ApiResponse;
+import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.emailauth.dto.EmailRequestDTO;
 import com.kimje.chat.emailauth.service.EmailService;
 import jakarta.mail.MessagingException;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

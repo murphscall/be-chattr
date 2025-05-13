@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.util.ArrayList;
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 public class UserRequestDTO {
@@ -31,7 +32,6 @@ public class UserRequestDTO {
         public Users toEntity(){
             return Users.builder()
                     .email(email)
-                    .password(password)
                     .phone(phone)
                     .name(name)
                     .role(UserRole.ROLE_USER)

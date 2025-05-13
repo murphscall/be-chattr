@@ -1,9 +1,10 @@
 package com.kimje.chat.user.controller;
 
-import com.kimje.chat.common.exception.FieldErrorException;
-import com.kimje.chat.common.response.ApiResponse;
+import com.kimje.chat.global.exception.FieldErrorException;
 import com.kimje.chat.user.dto.UserRequestDTO;
 import com.kimje.chat.user.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "USER API" ,description = "회원 관련 API")
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -39,6 +41,12 @@ public class UserController {
     @DeleteMapping("/api/users")
     public ResponseEntity<?> delete(@RequestBody UserRequestDTO.Delete dto){
         userService.deleteUser(dto);
+        return null;
+    }
+
+    @GetMapping("/api/users/me")
+    public ResponseEntity<?> me(HttpSession session){
+        userService.getUserInfo();
         return null;
     }
 

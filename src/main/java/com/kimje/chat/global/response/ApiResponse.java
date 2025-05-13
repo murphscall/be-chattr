@@ -1,4 +1,4 @@
-package com.kimje.chat.common.response;
+package com.kimje.chat.global.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
