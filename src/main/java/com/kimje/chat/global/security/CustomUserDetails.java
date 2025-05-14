@@ -1,6 +1,7 @@
 package com.kimje.chat.global.security;
 
 import com.kimje.chat.user.entity.Users;
+import com.kimje.chat.user.enums.UserRole;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails,AuthUser {
 
   private final Users user;
 
@@ -16,10 +17,20 @@ public class CustomUserDetails implements UserDetails {
     this.user = user;
   }
 
-  public Users getUser() {
-    return user;
+  @Override
+  public Long getUserId() {
+    return user.getUserId();
   }
 
+  @Override
+  public String getEmail() {
+    return user.getEmail();
+  }
+
+  @Override
+  public UserRole getRole() {
+    return user.getRole();
+  }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
