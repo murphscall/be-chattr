@@ -32,7 +32,7 @@ public class LoginService {
         );
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        UserRole role = userDetails.getUser().getRole();
+        UserRole role = userDetails.getRole();
         String token = jwtTokenProvider.createToken(authentication.getName() , role);
 
         LoginDTO.Response response = new LoginDTO.Response();

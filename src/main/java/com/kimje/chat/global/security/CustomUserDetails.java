@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class CustomUserDetails implements UserDetails,AuthUser {
 
   private final Users user;
+  private final String loginType = "NORMAL";
 
   public CustomUserDetails(Users user) {
     this.user = user;
@@ -25,6 +26,11 @@ public class CustomUserDetails implements UserDetails,AuthUser {
   @Override
   public String getEmail() {
     return user.getEmail();
+  }
+
+  @Override
+  public String getLoginType() {
+    return loginType;
   }
 
   @Override
@@ -47,23 +53,4 @@ public class CustomUserDetails implements UserDetails,AuthUser {
     return user.getEmail();
   }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
 }

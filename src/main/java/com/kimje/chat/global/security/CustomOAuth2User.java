@@ -40,10 +40,16 @@ public class CustomOAuth2User implements OAuth2User , AuthUser{
   }
 
   @Override
+  public String getLoginType() {
+    return provider;
+  }
+
+  @Override
   public UserRole getRole() {
     return role;
   }
 
+  // 시큐리티 형식적 구현
   @Override
   public Map<String, Object> getAttributes() {
     return attributes;

@@ -11,8 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   // 모든 요청에서 jwt 토큰을 꺼내서 검증 해야함.
   // 인증 정보를 securityContext에 넣어야함.
@@ -28,26 +30,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
 
-    String token = resolveToken(request);
+    String token = jwtTokenProvider.resolveToken(request);
 
     // 보내온 token 이 null 이 아니고 토큰 검증을 통과했다면.
     if(token != null && jwtTokenProvider.validateToken(token)){
+
       Authentication authentication = jwtTokenProvider.getAuthentication(token);
       SecurityContextHolder.getContext().setAuthentication(authentication);
+
 
     }
     filterChain.doFilter(request, response);
   }
 
 
-  // 헤더에 토큰 여부 검사
-  private String resolveToken(HttpServletRequest request) {
-    String bearer = request.getHeader("Authorization");
 
-    if (bearer != null && bearer.startsWith("Bearer ")) {
-      return bearer.substring(7); // "Bearer " 이후 토큰 추출
-    }
 
-    return null;
-  }
 }

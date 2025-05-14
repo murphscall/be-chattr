@@ -10,4 +10,6 @@ public interface UserLoginRepository extends JpaRepository<UserLogin , Long> {
 
 
   boolean existsByUserUserIdAndLoginType(long userId, String loginType);
+
+  UserLogin findByLoginTypeAndProviderId(String normal, String email);
 }

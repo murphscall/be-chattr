@@ -1,6 +1,8 @@
 package com.kimje.chat.global.security;
 
+import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
+import com.kimje.chat.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,12 +17,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtTokenProvider {
 
+  private final UserRepository userRepository;
   @Value("${jwt.secret}")
   private String secretKeyString;
 
@@ -28,6 +32,10 @@ public class JwtTokenProvider {
   private long tokenValidityInMilliseconds;
 
   private Key secretKey;
+
+  public JwtTokenProvider(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @PostConstruct
   protected void init() {
@@ -53,12 +61,15 @@ public class JwtTokenProvider {
   // 인증 객체 추출
   public Authentication getAuthentication(String token) {
     Claims claims = getClaims(token);
-    String userId = claims.getSubject();
+    String email = claims.getSubject();
+    String loginType = (String) claims.get("loginType");
     String role = (String) claims.get("role");
 
-    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+    Users user = userRepository.findByEmail(email)
+        .orElseThrow(()-> new UsernameNotFoundException("user not found"));
 
-    return new UsernamePasswordAuthenticationToken(userId, "", List.of(authority));
+    CustomUserDetails userDetails = new CustomUserDetails(user);
+    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
 
   // 유효성 검사

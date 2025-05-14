@@ -1,6 +1,8 @@
 package com.kimje.chat.global.security;
 
+import com.kimje.chat.user.entity.UserLogin;
 import com.kimje.chat.user.entity.Users;
+import com.kimje.chat.user.repository.UserLoginRepository;
 import com.kimje.chat.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
   private final UserRepository userRepository;
+  private final UserLoginRepository userLoginRepository;
+
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

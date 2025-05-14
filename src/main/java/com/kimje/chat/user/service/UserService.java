@@ -1,13 +1,18 @@
 package com.kimje.chat.user.service;
 
+import com.kimje.chat.auth.dto.LoginDTO;
 import com.kimje.chat.global.exception.EmailNotVerificationException;
+import com.kimje.chat.global.security.AuthUser;
 import com.kimje.chat.user.dto.UserRequestDTO;
+import com.kimje.chat.user.dto.UserResponseDTO;
 import com.kimje.chat.user.entity.UserLogin;
 import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
 import com.kimje.chat.user.repository.UserRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,7 +61,16 @@ public class UserService {
 
     }
 
-    public void getUserInfo() {
-        
+    public UserResponseDTO.Info getUserInfo(AuthUser authUser) {
+        Users user = userRepository.findById(authUser.getUserId())
+            .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+        return UserResponseDTO.Info.builder()
+            .email(user.getEmail())
+            .name(user.getName())
+            .phone(user.getPhone())
+            .createdAt(user.getCreatedAt())
+            .build();
+
     }
 }

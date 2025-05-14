@@ -6,4 +6,5 @@ public interface AuthUser {
   Long getUserId();
   String getEmail();
   UserRole getRole();
+  String getLoginType();
 }
