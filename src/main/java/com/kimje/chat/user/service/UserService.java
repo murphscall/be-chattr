@@ -57,12 +57,21 @@ public class UserService {
 
     }
 
-    public void deleteUser(UserRequestDTO.Delete dto) {
+    public void deleteUser(UserRequestDTO.Delete dto , long userId) {
+       Users user =  userRepository.findById(userId)
+           .orElseThrow(() -> new UsernameNotFoundException("찾을 수 없는 회원입니다."));
+
+
+       if(!passwordEncoder.matches(dto.getPassword() , user.getPassword())) {
+           throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+       }
+
+       userRepository.delete(user);
 
     }
 
-    public UserResponseDTO.Info getUserInfo(AuthUser authUser) {
-        Users user = userRepository.findById(authUser.getUserId())
+    public UserResponseDTO.Info getUserInfo(long userId) {
+        Users user = userRepository.findById(userId)
             .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
 
         return UserResponseDTO.Info.builder()

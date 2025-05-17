@@ -1,5 +1,6 @@
 package com.kimje.chat.auth.dto;
 
+import com.kimje.chat.user.dto.UserResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ public class LoginDTO {
   @NoArgsConstructor
   public static class Response {
     public String accessToken;
-
+    public UserResponseDTO.Info userInfo;
 
   }
 

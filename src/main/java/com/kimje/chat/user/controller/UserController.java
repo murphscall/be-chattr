@@ -39,14 +39,15 @@ public class UserController {
 
 
     @DeleteMapping("/api/users")
-    public ResponseEntity<?> delete(@RequestBody UserRequestDTO.Delete dto){
-        userService.deleteUser(dto);
-        return null;
+    public ResponseEntity<?> delete(@RequestBody UserRequestDTO.Delete dto , @AuthenticationPrincipal AuthUser authUser){
+        long userId = authUser.getUserId();
+        userService.deleteUser(dto, userId);
+        return ResponseEntity.ok().body(ApiResponse.success("회원 탈퇴 완료되었습니다."));
     }
 
     @GetMapping("/api/users/me")
     public ResponseEntity<?> me(@AuthenticationPrincipal AuthUser authUser){
-        UserResponseDTO.Info userInfo = userService.getUserInfo(authUser);
+        UserResponseDTO.Info userInfo = userService.getUserInfo(authUser.getUserId());
 
         return ResponseEntity.ok().body(ApiResponse.success(userInfo));
     }
