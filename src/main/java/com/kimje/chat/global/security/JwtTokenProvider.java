@@ -1,9 +1,12 @@
 package com.kimje.chat.global.security;
 
+import com.kimje.chat.global.exception.JwtInvalidTokenException;
+import com.kimje.chat.global.exception.JwtTokenExpiredException;
 import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
 import com.kimje.chat.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -43,9 +46,9 @@ public class JwtTokenProvider {
   }
 
   // 토큰 생성
-  public String createToken(String userId, UserRole role) {
-    Claims claims = Jwts.claims().setSubject(userId);
-    claims.put("roles", role.name());
+  public String createToken(long userId, UserRole role) {
+    Claims claims = Jwts.claims().setSubject(Long.toString(userId));
+    claims.put("role", role.name());
 
     Date now = new Date();
     Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
@@ -61,11 +64,12 @@ public class JwtTokenProvider {
   // 인증 객체 추출
   public Authentication getAuthentication(String token) {
     Claims claims = getClaims(token);
-    String email = claims.getSubject();
-    String loginType = (String) claims.get("loginType");
+    String userId = claims.getSubject();
     String role = (String) claims.get("role");
 
-    Users user = userRepository.findByEmail(email)
+    System.out.println(userId + " " +  role);
+
+    Users user = userRepository.findById(Long.parseLong(userId))
         .orElseThrow(()-> new UsernameNotFoundException("user not found"));
 
     CustomUserDetails userDetails = new CustomUserDetails(user);
@@ -82,6 +86,19 @@ public class JwtTokenProvider {
       return true;
     } catch (JwtException | IllegalArgumentException e) {
       return false;
+    }
+  }
+
+  public void validateTokenOrThrow(String token) {
+    try {
+      Jwts.parserBuilder()
+          .setSigningKey(secretKey)
+          .build()
+          .parseClaimsJws(token); // 여기서 예외 발생 가능
+    } catch (ExpiredJwtException e) {
+      throw new JwtTokenExpiredException("Access token expired");
+    } catch (JwtException | IllegalArgumentException e) {
+      throw new JwtInvalidTokenException("Invalid access token");
     }
   }
 

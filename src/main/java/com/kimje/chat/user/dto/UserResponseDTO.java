@@ -13,6 +13,7 @@ public class UserResponseDTO {
   @Setter
   @Builder
   public static class Info{
+    private long userId;
     private String email;
     private String name;
     private String phone;

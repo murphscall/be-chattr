@@ -75,6 +75,7 @@ public class UserService {
             .orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
 
         return UserResponseDTO.Info.builder()
+            .userId(user.getUserId())
             .email(user.getEmail())
             .name(user.getName())
             .phone(user.getPhone())

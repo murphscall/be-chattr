@@ -20,7 +20,6 @@ public class LoginDTO {
   @AllArgsConstructor
   @NoArgsConstructor
   public static class Response {
-    public String accessToken;
     public UserResponseDTO.Info userInfo;
 
   }

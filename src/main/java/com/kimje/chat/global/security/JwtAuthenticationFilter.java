@@ -1,6 +1,11 @@
 package com.kimje.chat.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kimje.chat.global.exception.JwtInvalidTokenException;
+import com.kimje.chat.global.exception.JwtTokenExpiredException;
+import com.kimje.chat.global.util.CookieUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,20 +35,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
 
-    String token = jwtTokenProvider.resolveToken(request);
+//    String token = jwtTokenProvider.resolveToken(request);
+    String token = CookieUtil.getCookie(request, "accessToken");
 
-    // 보내온 token 이 null 이 아니고 토큰 검증을 통과했다면.
-    if(token != null && jwtTokenProvider.validateToken(token)){
-
-      Authentication authentication = jwtTokenProvider.getAuthentication(token);
-      SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
+    try {
+      if (token != null) {
+        jwtTokenProvider.validateTokenOrThrow(token);  // 예외 던짐
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      }
+    } catch (JwtTokenExpiredException e) {
+      sendErrorResponse(response, "ACCESS_TOKEN_EXPIRED");
+      return;
+    } catch (JwtInvalidTokenException e) {
+      sendErrorResponse(response, "INVALID_ACCESS_TOKEN");
+      return;
     }
+
     filterChain.doFilter(request, response);
   }
 
-
-
-
+  private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.getWriter().write("{\"error\": \"" + message + "\"}");
+  }
 }
