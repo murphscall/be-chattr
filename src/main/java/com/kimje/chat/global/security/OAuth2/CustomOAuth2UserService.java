@@ -1,6 +1,5 @@
-package com.kimje.chat.global.security;
+package com.kimje.chat.global.security.OAuth2;
 
-import com.fasterxml.jackson.dataformat.yaml.util.StringQuotingChecker.Default;
 import com.kimje.chat.user.entity.UserLogin;
 import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
@@ -49,6 +48,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     Map<String,Object> attributes = oAuth2User.getAttributes();
     OAuth2Response oAuth2Response = switch (provider){
       case "kakao" -> new KakaoResponse(oAuth2User.getAttributes());
+      case "google" -> new GoogleResponse(oAuth2User.getAttributes());
       default -> throw new IllegalArgumentException("지원하지 않는 소셜 로그인");
     };
 

@@ -2,14 +2,14 @@ package com.kimje.chat.auth.service;
 
 import com.kimje.chat.auth.dto.LoginDTO;
 import com.kimje.chat.global.security.CustomUserDetails;
-import com.kimje.chat.global.security.JwtTokenProvider;
+import com.kimje.chat.global.security.OAuth2.AuthUser;
+import com.kimje.chat.global.util.CookieUtil;
 import com.kimje.chat.user.dto.UserResponseDTO;
-import com.kimje.chat.user.dto.UserResponseDTO.Info;
 import com.kimje.chat.user.enums.UserRole;
 import com.kimje.chat.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,16 +18,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class LoginService {
+public class AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final StringRedisTemplate stringRedisTemplate;
     private final TokenService tokenService;
     private final UserService userService;
 
 
-    public UserResponseDTO.Info login(LoginDTO.Request request , HttpServletResponse response) {
+    public UserResponseDTO.Info loginUser(LoginDTO.Request request , HttpServletResponse response) {
 
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -47,6 +45,20 @@ public class LoginService {
 
         // 유저 정보 반환
         return userService.getUserInfo(userDetails.getUserId());
+    }
+
+    public void logoutUser(AuthUser authUser, HttpServletRequest request,HttpServletResponse response) {
+        String refreshToken = CookieUtil.getCookie(request , "refreshToken");
+
+        if(refreshToken != null && tokenService.validateRefreshToken(authUser.getUserId(), refreshToken)){
+            tokenService.deleteRefreshToken(authUser.getUserId());
+
+            ResponseCookie expiredAccessCookie = CookieUtil.deleteCookie("accessToken");
+            ResponseCookie expiredRefreshCookie = CookieUtil.deleteCookie("refreshToken");
+
+            response.addHeader("Set-Cookie", expiredAccessCookie.toString());
+            response.addHeader("Set-Cookie", expiredRefreshCookie.toString());
+        }
     }
 
 

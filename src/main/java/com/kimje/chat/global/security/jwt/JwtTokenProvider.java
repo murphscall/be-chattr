@@ -1,7 +1,8 @@
-package com.kimje.chat.global.security;
+package com.kimje.chat.global.security.jwt;
 
 import com.kimje.chat.global.exception.JwtInvalidTokenException;
 import com.kimje.chat.global.exception.JwtTokenExpiredException;
+import com.kimje.chat.global.security.CustomUserDetails;
 import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
 import com.kimje.chat.user.repository.UserRepository;
@@ -15,13 +16,10 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service

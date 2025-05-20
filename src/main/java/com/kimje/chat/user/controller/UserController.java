@@ -2,13 +2,11 @@ package com.kimje.chat.user.controller;
 
 import com.kimje.chat.global.exception.FieldErrorException;
 import com.kimje.chat.global.response.ApiResponse;
-import com.kimje.chat.global.security.AuthUser;
+import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.dto.UserRequestDTO;
 import com.kimje.chat.user.dto.UserResponseDTO;
-import com.kimje.chat.user.dto.UserResponseDTO.Info;
 import com.kimje.chat.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,7 +32,7 @@ public class UserController {
             fieldErrorsHandler(result);
         }
         userService.createUser(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("회원 생성 완료"));
     }
 
 

@@ -1,23 +1,21 @@
-package com.kimje.chat.global.security;
+package com.kimje.chat.global.security.OAuth2;
 
-import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-public class CustomOAuth2User implements OAuth2User , AuthUser{
+public class CustomOAuth2User implements OAuth2User , AuthUser {
 
-  private long userId;
-  private String email;
-  private UserRole role;
-  private String provider;
-  private String providerId;
-  private Map<String, Object> attributes;
+  private final long userId;
+  private final String email;
+  private final UserRole role;
+  private final String provider;
+  private final String providerId;
+  private final Map<String, Object> attributes;
 
 
   public CustomOAuth2User(long userId, String email, UserRole role, String provider, String providerId, Map<String, Object> attributes) {

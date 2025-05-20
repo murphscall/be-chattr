@@ -1,6 +1,5 @@
-package com.kimje.chat.global.security;
+package com.kimje.chat.global.security.jwt;
 
-import com.kimje.chat.global.response.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

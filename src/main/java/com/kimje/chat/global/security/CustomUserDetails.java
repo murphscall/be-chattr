@@ -1,15 +1,15 @@
 package com.kimje.chat.global.security;
 
+import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class CustomUserDetails implements UserDetails,AuthUser {
+public class CustomUserDetails implements UserDetails, AuthUser {
 
   private final Users user;
   private final String loginType = "NORMAL";

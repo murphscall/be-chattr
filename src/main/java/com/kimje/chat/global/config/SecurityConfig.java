@@ -2,11 +2,10 @@ package com.kimje.chat.global.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import com.kimje.chat.global.security.CustomOAuth2UserService;
-import com.kimje.chat.global.security.JwtAuthenticationEntryPoint;
-import com.kimje.chat.global.security.JwtAuthenticationFilter;
-import com.kimje.chat.global.security.JwtTokenProvider;
-import com.kimje.chat.global.security.OAuth2LoginSuccessHandler;
+import com.kimje.chat.global.security.jwt.JwtAuthenticationEntryPoint;
+import com.kimje.chat.global.security.jwt.JwtAuthenticationFilter;
+import com.kimje.chat.global.security.jwt.JwtTokenProvider;
+import com.kimje.chat.global.security.OAuth2.OAuth2LoginSuccessHandler;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,7 +51,10 @@ public class SecurityConfig {
         .cors(withDefaults())
         .csrf(csrf -> csrf.disable())
         .formLogin(formLogin -> formLogin.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .securityContext(security -> security
+            .requireExplicitSave(false) // 또는 SecurityContextRepository를 NoOp으로 설정
+        );
 
     http.exceptionHandling(exceptionHandling -> exceptionHandling
         .authenticationEntryPoint(jwtAuthenticationEntryPoint));

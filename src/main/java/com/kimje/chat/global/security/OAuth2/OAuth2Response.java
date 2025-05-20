@@ -1,4 +1,4 @@
-package com.kimje.chat.global.security;
+package com.kimje.chat.global.security.OAuth2;
 
 public interface OAuth2Response {
 

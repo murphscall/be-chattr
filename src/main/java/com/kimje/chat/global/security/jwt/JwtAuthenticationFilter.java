@@ -1,21 +1,15 @@
-package com.kimje.chat.global.security;
+package com.kimje.chat.global.security.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kimje.chat.global.exception.JwtInvalidTokenException;
 import com.kimje.chat.global.exception.JwtTokenExpiredException;
 import com.kimje.chat.global.util.CookieUtil;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
