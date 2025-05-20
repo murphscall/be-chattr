@@ -1,7 +1,13 @@
-package com.kimje.chat.global.security;
+package com.kimje.chat.global.security.jwt;
 
+import com.kimje.chat.global.exception.JwtInvalidTokenException;
+import com.kimje.chat.global.exception.JwtTokenExpiredException;
+import com.kimje.chat.global.security.CustomUserDetails;
+import com.kimje.chat.user.entity.Users;
 import com.kimje.chat.user.enums.UserRole;
+import com.kimje.chat.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,17 +16,16 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtTokenProvider {
 
+  private final UserRepository userRepository;
   @Value("${jwt.secret}")
   private String secretKeyString;
 
@@ -29,15 +34,19 @@ public class JwtTokenProvider {
 
   private Key secretKey;
 
+  public JwtTokenProvider(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
+
   @PostConstruct
   protected void init() {
     this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
   }
 
   // 토큰 생성
-  public String createToken(String userId, UserRole role) {
-    Claims claims = Jwts.claims().setSubject(userId);
-    claims.put("roles", role.name());
+  public String createToken(long userId, UserRole role) {
+    Claims claims = Jwts.claims().setSubject(Long.toString(userId));
+    claims.put("role", role.name());
 
     Date now = new Date();
     Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
@@ -56,9 +65,13 @@ public class JwtTokenProvider {
     String userId = claims.getSubject();
     String role = (String) claims.get("role");
 
-    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+    System.out.println(userId + " " +  role);
 
-    return new UsernamePasswordAuthenticationToken(userId, "", List.of(authority));
+    Users user = userRepository.findById(Long.parseLong(userId))
+        .orElseThrow(()-> new UsernameNotFoundException("user not found"));
+
+    CustomUserDetails userDetails = new CustomUserDetails(user);
+    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
 
   // 유효성 검사
@@ -74,6 +87,19 @@ public class JwtTokenProvider {
     }
   }
 
+  public void validateTokenOrThrow(String token) {
+    try {
+      Jwts.parserBuilder()
+          .setSigningKey(secretKey)
+          .build()
+          .parseClaimsJws(token); // 여기서 예외 발생 가능
+    } catch (ExpiredJwtException e) {
+      throw new JwtTokenExpiredException("Access token expired");
+    } catch (JwtException | IllegalArgumentException e) {
+      throw new JwtInvalidTokenException("Invalid access token");
+    }
+  }
+
   // Claims 파싱
   private Claims getClaims(String token) {
     return Jwts.parserBuilder()
@@ -83,7 +109,7 @@ public class JwtTokenProvider {
         .getBody();
   }
 
-  // 헤더에서 토큰 추출 (선택)
+  // 헤더에서 토큰 추출
   public String resolveToken(HttpServletRequest request) {
     String bearer = request.getHeader("Authorization");
     if (bearer != null && bearer.startsWith("Bearer ")) {

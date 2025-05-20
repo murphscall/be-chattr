@@ -2,6 +2,7 @@ package com.kimje.chat.emailauth.service;
 
 import com.kimje.chat.global.exception.InvalidVerificationCodeException;
 import com.kimje.chat.global.exception.VerificationCodeExpiredException;
+import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.global.util.EmailVerifyPassGenerator;
 import com.kimje.chat.emailauth.dto.EmailRequestDTO;
 import jakarta.mail.MessagingException;
@@ -14,16 +15,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-  private final StringRedisTemplate redisTemplate;
+  private final RedisService redisService;
   private final JavaMailSender mailSender;
   private final EmailVerifyPassGenerator emailVerifyPassGenerator;
 
   public EmailService(JavaMailSender mailSender,
       EmailVerifyPassGenerator emailVerifyPassGenerator,
-      StringRedisTemplate redisTemplate) {
+      RedisService redisService) {
     this.mailSender = mailSender;
     this.emailVerifyPassGenerator = emailVerifyPassGenerator;
-    this.redisTemplate = redisTemplate;
+    this.redisService = redisService;
   }
 
 
@@ -47,12 +48,13 @@ public class EmailService {
             + "</body></html>";
 
     helper.setText(content, true);
-    redisTemplate.opsForValue().set(dto.getEmail(), code, 5, TimeUnit.MINUTES);
+    redisService.set(dto.getEmail(), code, 5, TimeUnit.MINUTES);
     mailSender.send(message);
   }
 
   public void verifyCode(EmailRequestDTO.Verify dto) throws MessagingException {
-    String storedCode = redisTemplate.opsForValue().get(dto.getEmail());
+    String storedCode = redisService.get(dto.getEmail());
+
     if(storedCode == null){
       // 인증 코드 만료
       throw new VerificationCodeExpiredException("인증 시간이 초과되었습니다.");
@@ -61,8 +63,8 @@ public class EmailService {
       throw new InvalidVerificationCodeException("잘못된 인증 코드 입니다.");
     }
 
-    redisTemplate.delete(dto.getEmail());
-    redisTemplate.opsForValue().set(dto.getEmail() , "true",30, TimeUnit.MINUTES);
+    redisService.delete(dto.getEmail());
+    redisService.set(dto.getEmail() , "true", 30, TimeUnit.MINUTES);
 
   }
 

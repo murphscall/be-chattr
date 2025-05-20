@@ -1,14 +1,17 @@
 package com.kimje.chat.user.controller;
 
 import com.kimje.chat.global.exception.FieldErrorException;
+import com.kimje.chat.global.response.ApiResponse;
+import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.dto.UserRequestDTO;
+import com.kimje.chat.user.dto.UserResponseDTO;
 import com.kimje.chat.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -29,25 +32,22 @@ public class UserController {
             fieldErrorsHandler(result);
         }
         userService.createUser(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("회원 생성 완료"));
     }
 
-    @PutMapping("/api/users")
-    public ResponseEntity<?> update(@RequestBody UserRequestDTO.Update dto){
-        userService.updateUser(dto);
-        return null;
-    }
 
     @DeleteMapping("/api/users")
-    public ResponseEntity<?> delete(@RequestBody UserRequestDTO.Delete dto){
-        userService.deleteUser(dto);
-        return null;
+    public ResponseEntity<?> delete(@RequestBody UserRequestDTO.Delete dto , @AuthenticationPrincipal AuthUser authUser){
+        long userId = authUser.getUserId();
+        userService.deleteUser(dto, userId);
+        return ResponseEntity.ok().body(ApiResponse.success("회원 탈퇴 완료되었습니다."));
     }
 
     @GetMapping("/api/users/me")
-    public ResponseEntity<?> me(HttpSession session){
-        userService.getUserInfo();
-        return null;
+    public ResponseEntity<?> me(@AuthenticationPrincipal AuthUser authUser){
+        UserResponseDTO.Info userInfo = userService.getUserInfo(authUser.getUserId());
+
+        return ResponseEntity.ok().body(ApiResponse.success(userInfo));
     }
 
     public void fieldErrorsHandler(BindingResult result){
