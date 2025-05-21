@@ -11,7 +11,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+
 import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,30 +27,30 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(
-    name = "user_login",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"login_type", "provider_id"})
-    }
+	name = "user_login",
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"login_type", "provider_id"})
+	}
 )
 public class UserLogin {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long loginId;
-  @Column(nullable = false , length = 20)
-  private String loginType;
-  @Column(nullable = false , length = 255)
-  private String providerId;
-  @Column(nullable = false)
-  private LocalDateTime createdAt;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	@Column(nullable = false, length = 20)
+	private String loginType;
+	@Column(nullable = false, length = 255)
+	private String providerId;
+	@Column(nullable = false)
+	private LocalDateTime createdAt;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private Users user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-  @PrePersist
-  public void prePersist() {
-    if (this.createdAt == null) {
-      this.createdAt = LocalDateTime.now(); // 수동으로 현재 시간 할당
-    }
-  }
+	@PrePersist
+	public void prePersist() {
+		if (this.createdAt == null) {
+			this.createdAt = LocalDateTime.now(); // 수동으로 현재 시간 할당
+		}
+	}
 }
