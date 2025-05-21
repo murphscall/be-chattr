@@ -3,7 +3,7 @@ package com.kimje.chat.user.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kimje.chat.user.dto.UserRequestDTO;
-import com.kimje.chat.user.entity.Users;
+import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class UserServiceTest {
     userService.createUser(dto);
 
     //then
-    Users findUser = userRepository.findByEmail(email).orElse(null);
+    User findUser = userRepository.findByEmail(email).orElse(null);
     assertNotNull(findUser);
     assertEquals(email, findUser.getEmail());
     assertEquals("test", findUser.getName());

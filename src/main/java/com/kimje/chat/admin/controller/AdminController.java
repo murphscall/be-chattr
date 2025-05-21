@@ -10,22 +10,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AdminController {
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/api/admin/users")
-  public String getUsers() {
-    return "getUsers";
-  }
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/api/admin/users")
+	public String getUsers() {
+		return "getUsers";
+	}
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/api/admin/users/{userId}")
-  public String blockUser( @PathVariable String userId) {
-    return "postUsers";
-  }
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/api/admin/users/{userId}")
+	public String blockUser(@PathVariable String userId) {
+		return "postUsers";
+	}
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/api/admin")
-  public String createAdmin() {
-    return "createAdmin";
-  }
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/api/admin")
+	public String createAdmin() {
+		return "createAdmin";
+	}
 
 }

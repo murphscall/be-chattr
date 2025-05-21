@@ -6,7 +6,9 @@ import com.kimje.chat.global.security.jwt.JwtAuthenticationEntryPoint;
 import com.kimje.chat.global.security.jwt.JwtAuthenticationFilter;
 import com.kimje.chat.global.security.jwt.JwtTokenProvider;
 import com.kimje.chat.global.security.OAuth2.OAuth2LoginSuccessHandler;
+
 import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -27,79 +29,75 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-  private final JwtTokenProvider jwtTokenProvider;
-  private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final JwtTokenProvider jwtTokenProvider;
+	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-  public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-      JwtTokenProvider jwtTokenProvider,
-      JwtAuthenticationFilter jwtAuthenticationFilter,
-      OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-    this.jwtTokenProvider = jwtTokenProvider;
-    this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
-  }
+	public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+		JwtTokenProvider jwtTokenProvider,
+		JwtAuthenticationFilter jwtAuthenticationFilter,
+		OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
+		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+		this.jwtTokenProvider = jwtTokenProvider;
+		this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+	}
 
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+		http
+			.cors(withDefaults())
+			.csrf(csrf -> csrf.disable())
+			.formLogin(formLogin -> formLogin.disable())
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.securityContext(security -> security
+				.requireExplicitSave(false) // 또는 SecurityContextRepository를 NoOp으로 설정
+			);
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.exceptionHandling(exceptionHandling -> exceptionHandling
+			.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
-    http
-        .cors(withDefaults())
-        .csrf(csrf -> csrf.disable())
-        .formLogin(formLogin -> formLogin.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .securityContext(security -> security
-            .requireExplicitSave(false) // 또는 SecurityContextRepository를 NoOp으로 설정
-        );
+		http
+			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.POST, "/api/users", "/api/auth/login", "/api/email/send", "/api/auth/refresh",
+					"/api/email/verify").permitAll()
+				.requestMatchers("/").permitAll()
+				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+				.anyRequest().authenticated());
 
-    http.exceptionHandling(exceptionHandling -> exceptionHandling
-        .authenticationEntryPoint(jwtAuthenticationEntryPoint));
+		http
+			.oauth2Login(oauth2 -> oauth2
+				.successHandler(oAuth2LoginSuccessHandler)
+			);
+		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-    http
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.POST ,"/api/users" , "/api/auth/login", "/api/email/send" , "/api/email/verify").permitAll()
-            .requestMatchers("/").permitAll()
-            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-            .anyRequest().authenticated());
+		return http.build();
+	}
 
-    http
-        .oauth2Login(oauth2 -> oauth2
-        .successHandler(oAuth2LoginSuccessHandler)
-    );
-    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	}
 
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(List.of("http://localhost:5175", "http://localhost:5173")); // 프론트 주소
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true); // 필요한 경우 true
+		config.setExposedHeaders(List.of("Authorization")); // 토큰을 헤더로 받을 경우
 
-    return http.build();
-  }
-
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-    return config.getAuthenticationManager();
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:5175","http://localhost:5173")); // 프론트 주소
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("*"));
-    config.setAllowCredentials(true); // 필요한 경우 true
-    config.setExposedHeaders(List.of("Authorization")); // 토큰을 헤더로 받을 경우
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-  }
-
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
 
 }
