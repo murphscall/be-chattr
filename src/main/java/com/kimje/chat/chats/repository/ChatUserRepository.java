@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,8 +20,6 @@ import org.springframework.stereotype.Repository;
 public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 	// 역할이 마스터인 유저가 만든 방의 수
 	int countByUserIdAndRole(Long userId, ChatRole role);
-
-	List<ChatUser> chat(Chat chat);
 
 	// chatId와 userId로 chat user 를 찾는 쿼리
 	@Query("""
@@ -31,6 +30,7 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 		    WHERE cu.chat.id = :chatId AND cu.user.id = :userId
 		""")
 	Optional<ChatUser> findByChatIdAndUserId(@Param("chatId") Long chatId, @Param("userId") Long userId);
+	boolean existsByChatIdAndUserId(@Param("chatId") Long chatId, @Param("userId") Long userId);
 
 	// chatId 를 가진 채팅방에 유저가 몇명인지 조회하는 쿼리
 	int countByChatId(Long chatId);
@@ -59,6 +59,9 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 	@Query("SELECT cu.chat FROM ChatUser cu WHERE cu.user.id = :userId")
 	Page<Chat> findChatsByUserId(@Param("userId") Long userId, Pageable pageable);
 
+	Long chat(Chat chat);
 
-
+	@Modifying
+	@Query("DELETE FROM ChatUser cu WHERE cu.user.id = :userId AND cu.chat.id = :chatId")
+	void deleteByUserIdAndChatId(@Param("userId") Long userId, @Param("chatId") Long chatId);
 }

@@ -39,15 +39,18 @@ public class TokenService {
 		setRefreshTokenCookie(refreshToken, response);
 	}
 
-	public boolean validateRefreshToken(Long userId, String refreshToken) {
+	public boolean validateRefreshToken(String refreshToken) {
 		String storedToken = redisService.get("refresh:" + refreshToken);
-		return storedToken.equals(userId.toString());
+		if( storedToken == null){
+			return false;
+		}
+		return true;
 	}
 
 	public void deleteRefreshToken(String refreshToken) {
-		System.out.println("삭제 전 존재 여부: " + redisService.get("refresh:" + refreshToken));
+
 		redisService.delete("refresh:" + refreshToken);
-		System.out.println("삭제 후 존재 여부: " + redisService.get("refresh:" + refreshToken));
+
 	}
 
 	private void setAccessTokenCookie(String accessToken, HttpServletResponse response) {

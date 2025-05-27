@@ -37,9 +37,11 @@ public class ChatUserController {
 	@PreAuthorize("hasRole('USER')")
 	@PostMapping("/api/chats/{chatId}/join")
 	public ResponseEntity<?> joinChat(@PathVariable("chatId") Long chatId, @AuthenticationPrincipal AuthUser authUser) {
-		Long responseChatId = chatUserService.joinUser(chatId, authUser.getUserId());
-		messageService.sendJoinNotice(chatId,authUser);
-		return ResponseEntity.ok().body(ApiResponse.success(Map.of("chatId", responseChatId)));
+		boolean exists = chatUserService.joinUser(chatId, authUser.getUserId());
+		if(exists){
+			messageService.sendJoinNotice(chatId,authUser);
+		}
+		return ResponseEntity.ok().body(ApiResponse.success(Map.of("chatId", chatId)));
 	}
 
 	// 채팅방 나가기
@@ -53,7 +55,7 @@ public class ChatUserController {
 
 	// 채팅방 유저 목록
 	@GetMapping("/api/chats/{chatId}/members")
-	public ResponseEntity<?> getChatMembers(@PathVariable Long chatId) {
+	public ResponseEntity<?> getChatMembers(@PathVariable("chatId") Long chatId) {
 		List<ChatUserInfo> chatUsers = chatUserService.getMembers(chatId);
 		return ResponseEntity.ok().body(ApiResponse.success(chatUsers));
 	}

@@ -3,6 +3,7 @@ package com.kimje.chat.auth.controller;
 import com.kimje.chat.auth.dto.LoginDTO;
 import com.kimje.chat.auth.service.AuthService;
 import com.kimje.chat.auth.service.TokenService;
+import com.kimje.chat.global.exception.customexception.UserNotFoundException;
 import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
@@ -66,7 +67,6 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginDTO.Request dto, HttpServletResponse response) {
-		log.info("[LOGIN] 로그인 요청 : {}", dto.getEmail());
 		UserResponseDTO.Info loginResponse = authService.loginUser(dto, response);
 
 		// 유저정보와 액세스 토큰은 반환하고 refresh 토큰은 쿠키로 전송
@@ -74,10 +74,10 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<ApiResponse<?>> logout(@AuthenticationPrincipal AuthUser authUser, HttpServletRequest request,
+	public ResponseEntity<ApiResponse<?>> logout(HttpServletRequest request,
 		HttpServletResponse response) {
 
-		authService.logoutUser(authUser, request, response);
+		authService.logoutUser(request, response);
 
 		return ResponseEntity.ok(ApiResponse.success("로그아웃되었습니다."));
 	}
@@ -86,13 +86,14 @@ public class AuthController {
 	public ResponseEntity<?> refreshAccessToken(
 		HttpServletRequest request,
 		HttpServletResponse response) {
+		log.info("🟢[REFRESH] 요청 도착 | IP: {} | URI: {}", request.getRemoteAddr(), request.getRequestURI());
 
-		System.out.println("zzzz");
 
 		// 1. 쿠키에서 refreshToken(UUID) 추출
 		String refreshToken = CookieUtil.getCookie(request, "refreshToken");
-		System.out.println(refreshToken + " refreshToken");
+
 		if (refreshToken == null) {
+			log.info("🟡[REFRESH] 리프레쉬 토큰 없음");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 				.body(Map.of("error", "Refresh token not found"));
 		}
@@ -100,22 +101,25 @@ public class AuthController {
 
 		// 2. Redis에서 userId 조회
 		// 키 refresh:UUID , 값 : userId , 정보 등
+		log.debug("🔵[REFRESH] Redis 조회 시도 | key = {}", "refresh:" + refreshToken);
 		String userIdStr = redisService.get("refresh:" + refreshToken);
 		if (userIdStr == null) {
+			log.warn("🟡[REFRESH] 유효하지 않은 리프레시 토큰 | key = {}", "refresh:" + refreshToken);
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 				.body(Map.of("error", "Invalid refresh token"));
 		}
 		Long userId = Long.parseLong(userIdStr);
 
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalStateException("유저가 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("존재하지 않는 사용자 입니다.",userId));
+		log.info("🟢[REFRESH] 리프레쉬 토큰 확인 완료 | userId={}", userId);
 		// 3. 새 accessToken 발급 후 쿠키로 응답
 		// 기존 리프레쉬 토큰 삭제 후 새로운 리프레쉬 토큰 발급
 		tokenService.createAccessToken(user.getId(), UserRole.ROLE_USER, response);
-		System.out.println("refresh token : " + refreshToken);
 		tokenService.deleteRefreshToken(refreshToken);
 		tokenService.createAndSaveRefreshToken(user.getId(), response);
 
+		log.info("🟢[REFRESH] 액세스/리프레시 토큰 재발급 완료 | userId={}", userId);
 		return ResponseEntity.ok().body(ApiResponse.success("리프레쉬 토큰 발급"));
 	}
 }

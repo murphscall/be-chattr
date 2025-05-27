@@ -3,11 +3,11 @@ package com.kimje.chat.global.exception.customexception;
 import lombok.Getter;
 
 @Getter
-public class VerificationCodeExpiredException extends RuntimeException {
+public class EmailCodeExpiredException extends RuntimeException {
 
 	private final String message;
 
-	public VerificationCodeExpiredException(String message) {
+	public EmailCodeExpiredException(String message) {
 		this.message = message;
 	}
 

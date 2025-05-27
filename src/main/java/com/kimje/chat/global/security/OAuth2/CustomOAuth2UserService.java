@@ -19,6 +19,9 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
@@ -35,17 +38,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-
+		log.info("🟢[OAUTH2] OAuth2User 요청 도착 | provider={}", userRequest.getClientRegistration().getRegistrationId());
 		OAuth2Token token = userRequest.getAccessToken();
-		System.out.println("액세스 토큰 : " + token.getTokenValue());
+
 
 		OidcIdToken idToken = null;
 		if (userRequest instanceof OidcUserRequest oidcUserRequest) {
 			idToken = oidcUserRequest.getIdToken();
-			System.out.println("ID Token Claims: " + idToken.getClaims());
 		}
 
 		OAuth2User oAuth2User = super.loadUser(userRequest);
+		log.debug("🔵[OAUTH2] 외부 유저 정보 수신: {}", oAuth2User.getAttributes());
 		String provider = userRequest.getClientRegistration().getRegistrationId();
 		Map<String, Object> attributes = oAuth2User.getAttributes();
 		OAuth2Response oAuth2Response = switch (provider) {
@@ -75,7 +78,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.providerId(oAuth2Response.getProviderId())
 				.build());
 		}
-
+		log.info("🟢[OAUTH2] 사용자 인증 완료 | 이메일={}, provider={}", oAuth2Response.getEmail(), provider);
 		return new CustomOAuth2User(user.getId(), user.getEmail(), user.getRole(),user.getName() ,provider, providerId, attributes);
 	}
 }

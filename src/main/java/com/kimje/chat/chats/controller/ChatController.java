@@ -51,6 +51,13 @@ public class ChatController {
 		return ResponseEntity.ok().body(ApiResponse.success(chatList));
 	}
 
+	// 핫한 채팅방 목록
+	@GetMapping("/api/chats/hot")
+	public ResponseEntity<ApiResponse<?>> getHotChats(Pageable pageable) {
+		PageResponse<ChatResponseDTO.ChatInfo> chatList = chatService.getHotChats(pageable);
+		return ResponseEntity.ok().body(ApiResponse.success(chatList));
+	}
+
 	// 참여중인 채팅방
 	@GetMapping("/api/chats/me")
 	public ResponseEntity<?> getMyChats(@AuthenticationPrincipal AuthUser authUser , Pageable pageable) {

@@ -10,5 +10,6 @@ public enum MessageType {
 	FILE,
 	NOTICE_JOIN,
 	NOTICE_LEAVE,
+	NOTICE_KICK,
 	MENTION,
 }

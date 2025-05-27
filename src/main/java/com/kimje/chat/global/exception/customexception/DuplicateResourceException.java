@@ -3,11 +3,9 @@ package com.kimje.chat.global.exception.customexception;
 import lombok.Getter;
 
 @Getter
-public class InvalidVerificationCodeException extends RuntimeException {
-
+public class DuplicateResourceException extends RuntimeException {
 	private final String message;
-
-	public InvalidVerificationCodeException(String message) {
+	public DuplicateResourceException(String message) {
 		this.message = message;
 	}
 }

@@ -2,8 +2,10 @@ package com.kimje.chat.chats.controller;
 
 import com.kimje.chat.chats.dto.ChatRequestDTO;
 import com.kimje.chat.chats.service.ChatAdminService;
+import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,9 +27,10 @@ public class ChatAdminController {
 	// 유저 추방
 	@PreAuthorize("hasRole('USER')")
 	@PostMapping("/api/chats/{chatId}/users/{targetId}/kick")
-	public String kickChat(@PathVariable Long chatId,
-		@PathVariable Long targetId) {
-		return "getChats";
+	public ResponseEntity<ApiResponse<?>> kickChat(@PathVariable("chatId") Long chatId,
+		@PathVariable("targetId") Long targetId , @AuthenticationPrincipal AuthUser authUser) {
+		chatAdminService.kickUser(chatId , targetId , authUser);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 	//채팅 방 내 권한 변경 (방장 권한)

@@ -1,7 +1,7 @@
 package com.kimje.chat.emailauth.service;
 
-import com.kimje.chat.global.exception.customexception.InvalidVerificationCodeException;
-import com.kimje.chat.global.exception.customexception.VerificationCodeExpiredException;
+import com.kimje.chat.global.exception.customexception.EmailCodeInvalidException;
+import com.kimje.chat.global.exception.customexception.EmailCodeExpiredException;
 import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.global.util.EmailVerifyPassGenerator;
 import com.kimje.chat.emailauth.dto.EmailRequestDTO;
@@ -30,9 +30,6 @@ public class EmailService {
 	}
 
 	public void sendEmail(EmailRequestDTO.Send dto) throws MessagingException {
-		if (!isValidEmail(dto.getEmail())) {
-			throw new MessagingException("이메일 주소를 확인해주세요.");
-		}
 
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -58,10 +55,10 @@ public class EmailService {
 
 		if (storedCode == null) {
 			// 인증 코드 만료
-			throw new VerificationCodeExpiredException("인증 시간이 초과되었습니다.");
+			throw new EmailCodeExpiredException("인증 시간이 초과되었습니다.");
 		}
 		if (!storedCode.equals(dto.getCode())) {
-			throw new InvalidVerificationCodeException("잘못된 인증 코드 입니다.");
+			throw new EmailCodeInvalidException("잘못된 인증 코드 입니다.");
 		}
 
 		redisService.delete(dto.getEmail());
@@ -69,8 +66,5 @@ public class EmailService {
 
 	}
 
-	private boolean isValidEmail(String email) {
-		return email.trim().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-	}
 }
 

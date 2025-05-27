@@ -24,6 +24,7 @@ public class MessageResponseDTO {
 	private String content;
 	private MessageType type;
 	private boolean isDeleted;
+	private Long targetId;
 	private LocalDateTime createdAt;
 
 	/** Message → DTO 변환 (null 안전) */
@@ -37,6 +38,19 @@ public class MessageResponseDTO {
 			.type(m.getType())
 			.isDeleted(m.isDeleted())
 			.createdAt(m.getCreatedAt())
+			.build();
+	}
+	public static MessageResponseDTO of(Message m, Long targetId) {
+		return MessageResponseDTO.builder()
+			.id(m.getId())
+			.chatId(m.getChatId().getId())
+			.senderId(m.getSenderUserId() != null ? m.getSenderUserId().getId() : null)
+			.senderName(m.getSenderUserId() != null ? m.getSenderUserId().getName() : "SYSTEM")
+			.content(m.getContent())
+			.type(m.getType())
+			.isDeleted(m.isDeleted())
+			.createdAt(m.getCreatedAt())
+			.targetId(targetId) // ✅ 추가
 			.build();
 	}
 

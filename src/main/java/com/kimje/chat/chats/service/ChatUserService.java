@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -27,23 +28,22 @@ public class ChatUserService {
 	private final UserRepository userRepository;
 	private final ChatUserRepository chatUserRepository;
 	private final ChatRepository chatRepository;
+	private final EntityManager em;
 
-	public Long joinUser(Long chatId, Long userId) {
+	public boolean joinUser(Long chatId, Long userId) {
 
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+		Chat chat = em.getReference(Chat.class, chatId);
+		User user = em.getReference(User.class, userId);
 
-		Optional<ChatUser> existing = chatUserRepository.findByChatIdAndUserId(chatId, user.getId());
-		if (existing.isPresent()) {
-			return chatId;
+		boolean existing = chatUserRepository.existsByChatIdAndUserId(chatId, user.getId());
+		if (existing) {
+			return false;
 		}
 		int count = chatUserRepository.countByChatId(chatId);
 		if (count >= MAX_PARTICIPANTS) {
 			throw new IllegalStateException("채팅방 인원이 가득 찼습니다.");
 		}
 
-		Chat chat = chatRepository.findById(chatId)
-			.orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
 
 		ChatUser newEntry = ChatUser.builder()
 			.chat(chat)
@@ -52,8 +52,7 @@ public class ChatUserService {
 			.build();
 
 		chatUserRepository.save(newEntry);
-
-		return chatId;
+		return true;
 	}
 
 	public void exitUser(Long chatId, Long userId) {

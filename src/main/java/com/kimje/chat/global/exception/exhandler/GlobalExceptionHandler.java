@@ -1,13 +1,13 @@
 package com.kimje.chat.global.exception.exhandler;
 
-import com.kimje.chat.global.exception.customexception.EmailNotVerificationException;
 import com.kimje.chat.global.exception.customexception.FieldErrorException;
-import com.kimje.chat.global.exception.customexception.InvalidVerificationCodeException;
-import com.kimje.chat.global.exception.customexception.VerificationCodeExpiredException;
+import com.kimje.chat.global.exception.customexception.EmailCodeInvalidException;
+import com.kimje.chat.global.exception.customexception.EmailCodeExpiredException;
 import com.kimje.chat.global.response.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Hidden
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
 	// 필드 에러 예외 핸들러
 
 	@ExceptionHandler(FieldErrorException.class)
 	public ResponseEntity<ApiResponse<?>> handleFieldErrorsException(FieldErrorException e) {
+		log.info("");
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
 			.body(ApiResponse.error(e.getErrors()));
@@ -32,24 +34,9 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
 	}
 
-	@ExceptionHandler(MessagingException.class)
-	public ResponseEntity<ApiResponse<?>> handleMessagingException(MessagingException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
-	}
 
-	@ExceptionHandler(InvalidVerificationCodeException.class)
-	public ResponseEntity<ApiResponse<?>> handleInvalidVerificationCodeException(InvalidVerificationCodeException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
-	}
 
-	@ExceptionHandler(VerificationCodeExpiredException.class)
-	public ResponseEntity<ApiResponse<?>> handleVerificationCodeExpiredException(VerificationCodeExpiredException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
-	}
 
-	@ExceptionHandler(EmailNotVerificationException.class)
-	public ResponseEntity<ApiResponse<?>> handleEmailNotVerificationException(EmailNotVerificationException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
-	}
+
 
 }

@@ -74,16 +74,22 @@ public class ChatService {
 		return pageResponse;
 	}
 
+	public PageResponse<ChatResponseDTO.ChatInfo> getHotChats(Pageable pageable) {
+		Page<ChatResponseDTO.ChatInfo> hotChats = chatRepository.findHotChats(pageable);
+		PageResponse<ChatResponseDTO.ChatInfo> pageResponse = PageResponse.from(hotChats);
+		return pageResponse;
+	}
+
 	public PageResponse<ChatResponseDTO.ChatInfo> getMyChats(AuthUser authUser ,Pageable pageable) {
 
-		Page<ChatResponseDTO.ChatInfo> mychats = chatUserRepository.findMyChatsWithCount(authUser.getUserId(), pageable);
-		PageResponse<ChatResponseDTO.ChatInfo> pageResponse = PageResponse.from(mychats);
+		Page<ChatResponseDTO.ChatInfo> myChats = chatUserRepository.findMyChatsWithCount(authUser.getUserId(), pageable);
+		PageResponse<ChatResponseDTO.ChatInfo> pageResponse = PageResponse.from(myChats);
 		return pageResponse;
 	}
 
 	public void validateOpenChatLimit(Long userId) {
 		int count = chatUserRepository.countByUserIdAndRole(userId, ChatRole.MASTER);
-		System.out.println("몇번 생성?: "  + count);
+
 		if (count >= MAX_OPEN_CHATS_PER_USER) {
 			throw new IllegalStateException("오픈 채팅방은 최대 5개까지만 생성할 수 있습니다. 추가로 생성을 원할 시에 기존의 방을 삭제해주세요");
 		}

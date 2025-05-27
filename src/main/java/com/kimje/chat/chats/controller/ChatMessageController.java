@@ -32,6 +32,7 @@ public class ChatMessageController {
 	private final ChatRepository chatRepository;
 	private final MessageRepository messageRepository;
 
+
 	public ChatMessageController(SimpMessagingTemplate simpMessagingTemplate,
 		UserRepository userRepository,
 		ChatUserRepository chatUserRepository,
@@ -58,10 +59,10 @@ public class ChatMessageController {
 			throw new AccessDeniedException("이 채팅방에 참여 중인 사용자가 아닙니다.");
 		}
 
+
 		Chat chat = chatRepository.findById(message.getChatId())
 			.orElseThrow(()-> new IllegalStateException("존재하지 않는 채팅방입니다."));
 		Message saveMessage = new Message();
-		System.out.println(message.getType());
 		saveMessage.setChatId(chat);
 		saveMessage.setContent(message.getContent());
 		saveMessage.setType(message.getType());
