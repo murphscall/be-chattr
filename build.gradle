@@ -13,6 +13,7 @@ java {
     }
 }
 
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -25,6 +26,7 @@ repositories {
 
 dependencies {
 
+    implementation 'org.springframework.boot:spring-boot-starter-messaging'
     implementation("org.springframework.boot:spring-boot-starter-security:3.4.2")
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
