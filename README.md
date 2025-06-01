@@ -226,11 +226,111 @@
 ### 3. API 설계
 
 
-
-
 ### 4.사용자 인증 발급 흐름도
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User
+    participant Frontend
+    participant Backend
+    participant Redis
 
-![Image](https://github.com/user-attachments/assets/fbc54f68-8736-4542-9b55-5c9da3adde79)
+    %% ✅ 초기 로그인 시
+    rect rgb(216, 245, 216)
+    note over User, Redis: ✅ 초기 로그인 시
+    User->>Frontend: 로그인 요청 (email, password)
+    Frontend->>Backend: POST /api/auth/login
+    Backend->>Redis: RefreshToken(UUID) 저장
+    Backend-->>Frontend: AccessToken(JWT), RefreshToken(UUID)
+    Frontend-->>User: 쿠키 저장 (HTTP-only)
+    end
+
+    %% ✅ 보호된 API 요청 시
+    rect rgb(224, 234, 255)
+    note over User, Redis: ✅ 보호된 API 요청 시
+    User->>Frontend: API 요청 (AccessToken 포함)
+    Frontend->>Backend: GET /api/protected
+    alt AccessToken 유효
+        Backend-->>Frontend: 정상 응답
+    else AccessToken 만료
+        Backend-->>Frontend: 401 Unauthorized
+
+        %% ✅ 리프레시 토큰으로 재발급
+        note over Frontend, Redis: ✅ 리프레시 토큰으로 재발급 요청
+        Frontend->>Backend: POST /api/auth/refresh (with RefreshToken 쿠키)
+        Backend->>Redis: RefreshToken 조회 및 검증
+        alt RefreshToken 유효
+            Redis-->>Backend: OK
+            Backend->>Redis: 기존 RefreshToken 삭제
+            Backend->>Redis: 새로운 RefreshToken 저장
+            Backend-->>Frontend: 새 AccessToken + 새 RefreshToken
+        else RefreshToken 없음 또는 만료
+            Backend-->>Frontend: 401 Unauthorized
+        end
+    end
+    end
+
+    %% ✅ 로그아웃 시
+    rect rgb(255, 240, 214)
+    note over User, Redis: ✅ 로그아웃 시
+    User->>Frontend: 로그아웃 요청
+    Frontend->>Backend: POST /api/auth/logout
+    Backend->>Redis: RefreshToken 삭제
+    Backend-->>Frontend: 쿠키 삭제 응답
+    end
+```
 
 ### 5. 시큐리티 구조 및 JWT 처리 흐름도
-![Image](https://github.com/user-attachments/assets/d059a297-e45c-4336-ac2c-70cf78708428)
+```mermaid
+sequenceDiagram
+autonumber
+participant 사용자
+participant UsernamePasswordAuthenticationFilter
+participant AuthenticationManager
+participant CustomUserDetailsService
+participant JwtTokenProvider
+participant DispatcherServlet
+participant OAuth2LoginAuthenticationFilter
+participant CustomOAuth2UserService
+participant JwtAuthenticationFilter
+participant @RestController
+participant UserService
+participant UserRepository
+participant Database
+
+    %% Form 로그인
+    사용자->>UsernamePasswordAuthenticationFilter: POST /login (username, password)
+    UsernamePasswordAuthenticationFilter->>AuthenticationManager: authenticate()
+    AuthenticationManager->>CustomUserDetailsService: loadUserByUsername()
+    CustomUserDetailsService-->>AuthenticationManager: CustomUserDetails
+    AuthenticationManager-->>UsernamePasswordAuthenticationFilter: 인증 객체 반환
+    UsernamePasswordAuthenticationFilter->>JwtTokenProvider: createToken()
+    JwtTokenProvider-->>UsernamePasswordAuthenticationFilter: JWT 발급
+    UsernamePasswordAuthenticationFilter-->>사용자: JWT 반환
+
+    %% OAuth2 로그인
+    사용자->>DispatcherServlet: GET /oauth2/authorization/kakao
+    DispatcherServlet->>OAuth2LoginAuthenticationFilter: 인증 처리
+    OAuth2LoginAuthenticationFilter->>CustomOAuth2UserService: loadUser()
+    CustomOAuth2UserService->>UserRepository: findByEmail()
+    UserRepository-->>CustomOAuth2UserService: Users
+    CustomOAuth2UserService-->>OAuth2LoginAuthenticationFilter: CustomOAuth2User
+    OAuth2LoginAuthenticationFilter->>JwtTokenProvider: createToken()
+    JwtTokenProvider-->>OAuth2LoginAuthenticationFilter: JWT 발급
+    OAuth2LoginAuthenticationFilter-->>사용자: JWT + 리다이렉트
+
+    %% 토큰으로 사용자 정보 요청
+    사용자->>JwtAuthenticationFilter: GET /api/users/me (Authorization: Bearer ...)
+    JwtAuthenticationFilter->>JwtTokenProvider: validateToken()
+    JwtTokenProvider-->>JwtAuthenticationFilter: true
+    JwtAuthenticationFilter->>JwtTokenProvider: getAuthentication()
+    JwtTokenProvider->>UserRepository: findByEmail()
+    UserRepository-->>JwtTokenProvider: Users
+    JwtTokenProvider-->>JwtAuthenticationFilter: Authentication(CustomUserDetails)
+    JwtAuthenticationFilter-->>@RestController: SecurityContext 설정 완료 후 요청 전달
+    @RestController->>UserService: getUserInfo()
+    UserService->>UserRepository: findBy(id)
+    UserRepository-->>UserService: Users
+    UserService-->>@RestController: UserResponseDTO
+    @RestController-->>사용자: JSON 응답 반환
+```
