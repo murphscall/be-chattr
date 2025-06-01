@@ -19,12 +19,13 @@ import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,19 +68,19 @@ public class ChatService {
 
 		return chatInfo;
 	}
-
+	@Transactional(readOnly = true)
 	public PageResponse<ChatResponseDTO.ChatInfo> getChats(Pageable pageable) {
 		Page<ChatResponseDTO.ChatInfo> chats = chatRepository.getChats(pageable);
 		PageResponse<ChatResponseDTO.ChatInfo> pageResponse = PageResponse.from(chats);
 		return pageResponse;
 	}
-
+	@Transactional(readOnly = true)
 	public PageResponse<ChatResponseDTO.ChatInfo> getHotChats(Pageable pageable) {
 		Page<ChatResponseDTO.ChatInfo> hotChats = chatRepository.findHotChats(pageable);
 		PageResponse<ChatResponseDTO.ChatInfo> pageResponse = PageResponse.from(hotChats);
 		return pageResponse;
 	}
-
+	@Transactional(readOnly = true)
 	public PageResponse<ChatResponseDTO.ChatInfo> getMyChats(AuthUser authUser ,Pageable pageable) {
 
 		Page<ChatResponseDTO.ChatInfo> myChats = chatUserRepository.findMyChatsWithCount(authUser.getUserId(), pageable);
@@ -95,6 +96,7 @@ public class ChatService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public List<MessageResponseDTO> getVisibleMessages(Long chatId, AuthUser authUser) {
 		ChatUser chatUser = chatUserRepository
 			.findByChatIdAndUserId(chatId, authUser.getUserId())

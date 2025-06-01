@@ -2,6 +2,7 @@ package com.kimje.chat.user.service;
 
 import com.kimje.chat.global.exception.customexception.DuplicateResourceException;
 import com.kimje.chat.global.exception.customexception.EmailNotVerificationException;
+import com.kimje.chat.global.exception.customexception.UserNotFoundException;
 import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.user.dto.UserRequestDTO;
 import com.kimje.chat.user.dto.UserResponseDTO;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final RedisService redisService;
 
+	@Transactional
 	public void createUser(UserRequestDTO.Create dto) {
 		log.info("🟢[REGISTER] 이메일 검증 여부 검사 ={}" , dto.getEmail());
 		String verificationStatus = redisService.get(dto.getEmail());
@@ -58,9 +61,10 @@ public class UserService {
 
 	}
 
+	@Transactional
 	public void deleteUser(UserRequestDTO.Delete dto, long userId) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UsernameNotFoundException("찾을 수 없는 회원입니다."));
+			.orElseThrow(() -> new UserNotFoundException("찾을 수 없는 회원입니다.",userId));
 
 		if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
 			throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
@@ -70,9 +74,10 @@ public class UserService {
 
 	}
 
+	@Transactional(readOnly = true)
 	public UserResponseDTO.Info getUserInfo(long userId) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+			.orElseThrow(() -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다.",userId));
 
 		return UserResponseDTO.Info.builder()
 			.userId(user.getId())
