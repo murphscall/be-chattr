@@ -9,10 +9,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 @Entity
+@Table(
+	uniqueConstraints = @UniqueConstraint(columnNames = {"message_id", "user_id"})
+)
 public class MessageLike {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

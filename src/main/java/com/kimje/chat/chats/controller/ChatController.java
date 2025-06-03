@@ -7,6 +7,7 @@ import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.Message;
 import com.kimje.chat.chats.repository.ChatRepository;
 import com.kimje.chat.chats.service.ChatService;
+import com.kimje.chat.chats.service.ChatUserService;
 import com.kimje.chat.global.exception.customexception.FieldErrorException;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.response.PageResponse;
@@ -41,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
 	private final ChatService chatService;
-
+	private final ChatUserService chatUserService;
 
 	// 전체 채팅방 목록
 	@PreAuthorize("hasRole('USER')")
@@ -63,6 +64,12 @@ public class ChatController {
 	public ResponseEntity<?> getMyChats(@AuthenticationPrincipal AuthUser authUser , Pageable pageable) {
 		PageResponse<ChatResponseDTO.ChatInfo> myChats = chatService.getMyChats(authUser,pageable);
 		return ResponseEntity.ok().body(ApiResponse.success(myChats));
+	}
+
+	@GetMapping("/api/chats/my")
+	public ResponseEntity<?> getCreateByMeChats(@AuthenticationPrincipal AuthUser authUser) {
+		List<ChatResponseDTO.ChatInfo> list = chatUserService.getCreateByMeChats(authUser.getUserId());
+		return ResponseEntity.ok().body(ApiResponse.success(list));
 	}
 
 

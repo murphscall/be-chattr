@@ -1,5 +1,6 @@
 package com.kimje.chat.chats.service;
 
+import com.kimje.chat.chats.dto.ChatResponseDTO;
 import com.kimje.chat.chats.dto.ChatResponseDTO.ChatUserInfo;
 import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.ChatUser;
@@ -64,13 +65,16 @@ public class ChatUserService {
 		// 일반 유저 퇴장
 		if (!isMaster) {
 			chatUserRepository.delete(chatUser);
+			return;
 		}
 		// 방장일 때
 		// 채팅방에 참여중인 모든 유저
 		int count = chatUserRepository.countByChatId(chatId);
 		// 참여수가 1명이거나 작으면 채팅방 삭제 / 채팅 목록 테이블도 자동 삭제
 		if (count <= 1) {
+			chatUserRepository.delete(chatUser);
 			chatRepository.deleteById(chatId);
+			return;
 		}
 
 		// 참여자 수가 2명 이상이면
@@ -104,5 +108,7 @@ public class ChatUserService {
 			.collect(Collectors.toList());
 	}
 
-
+	public List<ChatResponseDTO.ChatInfo> getCreateByMeChats(Long userId) {
+		return chatUserRepository.findChatsByUserIdAndRole(userId,ChatRole.MASTER);
+	}
 }

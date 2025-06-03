@@ -2,6 +2,7 @@ package com.kimje.chat.chats.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,4 +15,6 @@ public interface MessageRepository extends JpaRepository<Message,Long>{
 	List<Message> findByChatIdAndCreatedAtAfter(Chat chat,LocalDateTime joinUser);
 
 	List<Message> findByChatId_IdAndCreatedAtAfter(Long chatId, LocalDateTime joinedAt);
+
+	Optional<Message> findByChatIdAndId(Long chatId, Long msgId);
 }
