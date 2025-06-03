@@ -2,20 +2,16 @@ package com.kimje.chat.chats.controller;
 
 import com.kimje.chat.chats.dto.ChatResponseDTO.ChatUserInfo;
 import com.kimje.chat.chats.service.ChatUserService;
-import com.kimje.chat.chats.service.MessageService;
+import com.kimje.chat.chats.service.message.SystemMessageService;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 
 import java.util.List;
 import java.util.Map;
 
-
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,11 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatUserController {
 
 	private final ChatUserService chatUserService;
-	private final MessageService messageService;
+	private final SystemMessageService systemMessageService;
 
-	public ChatUserController(ChatUserService chatUserService1, MessageService messageService) {
+	public ChatUserController(ChatUserService chatUserService1, SystemMessageService systemMessageService) {
 		this.chatUserService = chatUserService1;
-		this.messageService = messageService;
+		this.systemMessageService = systemMessageService;
 	}
 
 	// 채팅방 입장
@@ -39,7 +35,7 @@ public class ChatUserController {
 	public ResponseEntity<?> joinChat(@PathVariable("chatId") Long chatId, @AuthenticationPrincipal AuthUser authUser) {
 		boolean exists = chatUserService.joinUser(chatId, authUser.getUserId());
 		if(exists){
-			messageService.sendJoinNotice(chatId,authUser);
+			systemMessageService.sendJoinNotice(chatId,authUser);
 		}
 		return ResponseEntity.ok().body(ApiResponse.success(Map.of("chatId", chatId)));
 	}

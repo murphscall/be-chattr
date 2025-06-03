@@ -1,11 +1,11 @@
 package com.kimje.chat.chats.service;
 
 import com.kimje.chat.chats.dto.ChatRequestDTO;
-import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.enums.ChatRole;
-import com.kimje.chat.chats.repository.ChatRepository;
+import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
+import com.kimje.chat.chats.service.message.SystemMessageService;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 
 import org.springframework.stereotype.Service;
@@ -15,13 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatAdminService {
 
 	private final ChatUserRepository chatUserRepository;
-	private final ChatRepository chatRepository;
-	private final MessageService messageService;
+	private final ChatRoomRepository chatRepository;
+	private final SystemMessageService systemMessageService;
 
-	public ChatAdminService(ChatUserRepository chatUserRepository, ChatRepository chatRepository , MessageService messageService) {
+	public ChatAdminService(ChatUserRepository chatUserRepository, ChatRoomRepository chatRepository , SystemMessageService systemMessageService) {
 		this.chatUserRepository = chatUserRepository;
 		this.chatRepository = chatRepository;
-		this.messageService = messageService;
+		this.systemMessageService = systemMessageService;
 	}
 
 	public void changeRole(Long userId, Long chatId, Long targetId, ChatRequestDTO.ChangeRole dto) {
@@ -68,7 +68,7 @@ public class ChatAdminService {
 		}
 
 		chatUserRepository.deleteByUserIdAndChatId(userId, chatId);
-		messageService.sendKickNotice(chatId, userId);
+		systemMessageService.sendKickNotice(chatId, userId);
 
 	}
 }

@@ -1,7 +1,6 @@
-package com.kimje.chat.chats.service;
+package com.kimje.chat.chats.service.message;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,9 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.kimje.chat.chats.dto.MessageResponseDTO;
 import com.kimje.chat.chats.entity.Chat;
-import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.entity.Message;
-import com.kimje.chat.chats.entity.MessageLike;
 import com.kimje.chat.chats.enums.MessageType;
 import com.kimje.chat.chats.repository.ChatUserRepository;
 import com.kimje.chat.chats.repository.MessageLikeRepository;
@@ -25,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class MessageService {
+public class SystemMessageService {
 	private final MessageRepository messageRepo;
 	private final SimpMessagingTemplate template;
 	private final EntityManager em;
@@ -82,17 +79,4 @@ public class MessageService {
 
 	}
 
-
-	public synchronized void addLike(Long chatId , Long msgId , Long userId) {
-		Message message = messageRepository.findByChatIdAndId(chatId,msgId)
-			.orElseThrow(() -> new IllegalStateException("이 채팅방에 없는 메시지 입니다."));
-
-		User user = em.getReference(User.class, userId);
-
-		MessageLike msgLike = new MessageLike();
-		msgLike.setMessageId(message);
-		msgLike.setUserId(user);
-
-		messageLikeRepository.save(msgLike);
-	}
 }

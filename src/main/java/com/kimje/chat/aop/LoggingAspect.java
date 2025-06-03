@@ -30,7 +30,7 @@ public class LoggingAspect {
 	private final HttpServletResponse response;
 
 	@Around("execution(* com.kimje..*Controller.*(..)) &&" +
-		"!within(com.kimje.chat.chats.controller.ChatMessageController)")
+		"!within(com.kimje.chat.chats.controller.StompController)")
 	public Object logController(ProceedingJoinPoint joinPoint) throws Throwable {
 		boolean success = true;
 		long start = System.currentTimeMillis();

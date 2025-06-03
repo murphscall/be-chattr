@@ -5,13 +5,11 @@ import com.kimje.chat.chats.dto.ChatResponseDTO.ChatUserInfo;
 import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.enums.ChatRole;
-import com.kimje.chat.chats.repository.ChatRepository;
+import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
-import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,7 +26,7 @@ public class ChatUserService {
 	private static final int MAX_PARTICIPANTS = 100;
 	private final UserRepository userRepository;
 	private final ChatUserRepository chatUserRepository;
-	private final ChatRepository chatRepository;
+	private final ChatRoomRepository chatRepository;
 	private final EntityManager em;
 
 	public boolean joinUser(Long chatId, Long userId) {

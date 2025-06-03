@@ -3,6 +3,7 @@ package com.kimje.chat.user.controller;
 import com.kimje.chat.global.exception.customexception.FieldErrorException;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
+import com.kimje.chat.global.util.FieldErrorsHandlerUtil;
 import com.kimje.chat.user.dto.UserRequestDTO;
 import com.kimje.chat.user.dto.UserResponseDTO;
 import com.kimje.chat.user.service.UserService;
@@ -25,13 +26,13 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-
+	private final FieldErrorsHandlerUtil fieldErrorsHandlerUtil;
 	private final UserService userService;
 
 	@PostMapping("/api/users")
 	public ResponseEntity<?> create(@Valid @RequestBody UserRequestDTO.Create dto, BindingResult result) {
 		if (result.hasErrors()) {
-			fieldErrorsHandler(result);
+			fieldErrorsHandlerUtil.fieldErrorsHandler(result);
 		}
 		userService.createUser(dto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("회원 생성 완료"));
@@ -51,15 +52,4 @@ public class UserController {
 
 		return ResponseEntity.ok().body(ApiResponse.success(userInfo));
 	}
-
-	public void fieldErrorsHandler(BindingResult result) {
-		Map<String, String> errors = new HashMap<>();
-
-		for (FieldError error : result.getFieldErrors()) {
-			errors.put(error.getField(), error.getDefaultMessage());
-		}
-
-		throw new FieldErrorException(errors);
-	}
-
 }
