@@ -30,6 +30,7 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 		    WHERE cu.chat.id = :chatId AND cu.user.id = :userId
 		""")
 	Optional<ChatUser> findByChatIdAndUserId(@Param("chatId") Long chatId, @Param("userId") Long userId);
+
 	boolean existsByChatIdAndUserId(@Param("chatId") Long chatId, @Param("userId") Long userId);
 
 	// chatId 를 가진 채팅방에 유저가 몇명인지 조회하는 쿼리
@@ -64,4 +65,19 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 	@Modifying
 	@Query("DELETE FROM ChatUser cu WHERE cu.user.id = :userId AND cu.chat.id = :chatId")
 	void deleteByUserIdAndChatId(@Param("userId") Long userId, @Param("chatId") Long chatId);
+
+	@Query("""
+		    SELECT new com.kimje.chat.chats.dto.ChatResponseDTO$ChatInfo(
+		        c.id, c.title, c.description, c.topic, COUNT(cu), c.createdAt)
+		    FROM Chat c
+		    JOIN c.chatUsers cu
+		    WHERE c.id IN (
+		        SELECT cu2.chat.id
+		        FROM ChatUser cu2
+		        WHERE cu2.user.id = :userId AND cu2.role = :role
+		    )
+		    GROUP BY c.id, c.title, c.description, c.topic, c.createdAt
+		    ORDER BY c.createdAt DESC
+		""")
+	List<ChatResponseDTO.ChatInfo> findChatsByUserIdAndRole(@Param("userId") Long userId, @Param("role") ChatRole role);
 }

@@ -45,10 +45,10 @@ public class ChatUserController {
 	}
 
 	// 채팅방 나가기
-	@DeleteMapping("/api/chats/{chatId}/exit")
+	@PostMapping("/api/chats/{chatId}/exit")
 	public ResponseEntity<?> exitChat(@PathVariable("chatId") Long chatId, @AuthenticationPrincipal AuthUser authUser) {
 		chatUserService.exitUser(chatId, authUser.getUserId());
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(Map.of("chatId", chatId)));
+		return ResponseEntity.ok().body(ApiResponse.success(Map.of("chatId", chatId)));
 	}
 
 

@@ -11,8 +11,10 @@ import com.kimje.chat.chats.dto.MessageResponseDTO;
 import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.entity.Message;
+import com.kimje.chat.chats.entity.MessageLike;
 import com.kimje.chat.chats.enums.MessageType;
 import com.kimje.chat.chats.repository.ChatUserRepository;
+import com.kimje.chat.chats.repository.MessageLikeRepository;
 import com.kimje.chat.chats.repository.MessageRepository;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.entity.User;
@@ -29,6 +31,8 @@ public class MessageService {
 	private final EntityManager em;
 	private final ChatUserRepository chatUserRepository;
 	private final UserRepository userRepository;
+	private final MessageRepository messageRepository;
+	private final MessageLikeRepository messageLikeRepository;
 
 	public void sendJoinNotice(Long chatId, AuthUser authUser) {
 
@@ -76,5 +80,19 @@ public class MessageService {
 		);
 
 
+	}
+
+
+	public synchronized void addLike(Long chatId , Long msgId , Long userId) {
+		Message message = messageRepository.findByChatIdAndId(chatId,msgId)
+			.orElseThrow(() -> new IllegalStateException("이 채팅방에 없는 메시지 입니다."));
+
+		User user = em.getReference(User.class, userId);
+
+		MessageLike msgLike = new MessageLike();
+		msgLike.setMessageId(message);
+		msgLike.setUserId(user);
+
+		messageLikeRepository.save(msgLike);
 	}
 }
