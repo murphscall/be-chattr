@@ -16,5 +16,5 @@ public interface MessageRepository extends JpaRepository<Message,Long>{
 
 	List<Message> findByChatId_IdAndCreatedAtAfter(Long chatId, LocalDateTime joinedAt);
 
-	Optional<Message> findByChatIdAndId(Long chatId, Long msgId);
+	Optional<Message> findByChatIdAndId(Chat chatId, long id);
 }
