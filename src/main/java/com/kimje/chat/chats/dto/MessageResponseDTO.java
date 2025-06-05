@@ -26,7 +26,8 @@ public class MessageResponseDTO {
 	private boolean isDeleted;
 	private Long targetId;
 	private LocalDateTime createdAt;
-
+	private boolean isLikedByMe;
+	private int likeCount;
 	/** Message → DTO 변환 (null 안전) */
 	public static MessageResponseDTO of(Message m) {
 		return MessageResponseDTO.builder()
