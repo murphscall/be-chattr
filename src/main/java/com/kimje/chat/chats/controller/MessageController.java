@@ -39,7 +39,7 @@ public class MessageController {
 
 	@PostMapping("/api/chats/{chatId}/msg/{msgId}/likes")
 	public ResponseEntity<ApiResponse<?>> likeMessage(@PathVariable("chatId") Long chatId, @PathVariable("msgId") Long msgId , @AuthenticationPrincipal AuthUser authUser) {
-		messageCommandService.addLike(chatId, msgId , authUser.getUserId());
+		messageCommandService.toggleLike(chatId, msgId , authUser.getUserId());
 		return ResponseEntity.ok().body(ApiResponse.success("좋아요 완료"));
 	}
 

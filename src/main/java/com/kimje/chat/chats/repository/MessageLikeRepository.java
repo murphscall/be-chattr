@@ -1,5 +1,7 @@
 package com.kimje.chat.chats.repository;
 
+import com.kimje.chat.chats.entity.Message;
+import com.kimje.chat.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.kimje.chat.chats.entity.MessageLike;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -24,4 +27,7 @@ public interface MessageLikeRepository extends JpaRepository<MessageLike, Long> 
             @Param("chatId") Long chatId,
             @Param("joinedAt") LocalDateTime joinedAt
     );
+
+
+    Optional<MessageLike> findByMessageIdAndUserId(Message message, User user);
 }
