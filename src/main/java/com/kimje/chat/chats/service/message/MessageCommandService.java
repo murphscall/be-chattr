@@ -12,6 +12,8 @@ import com.kimje.chat.user.entity.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MessageCommandService {
@@ -20,17 +22,23 @@ public class MessageCommandService {
 	private final MessageLikeRepository messageLikeRepository;
 	private final EntityManager em;
 
-	public synchronized void addLike(Long chatId , Long msgId , Long userId) {
+	public synchronized void toggleLike(Long chatId , Long msgId , Long userId) {
 
 		Message message = messageRepository.findByChatIdAndId(em.getReference(Chat.class, chatId),msgId)
 			.orElseThrow(() -> new IllegalStateException("이 채팅방에 없는 메시지 입니다."));
 
 		User user = em.getReference(User.class, userId);
 
-		MessageLike msgLike = new MessageLike();
-		msgLike.setMessageId(message);
-		msgLike.setUserId(user);
+		Optional<MessageLike> existingLike = messageLikeRepository
+				.findByMessageIdAndUserId(message, user);
 
-		messageLikeRepository.save(msgLike);
+		if(existingLike.isPresent()) {
+			messageLikeRepository.delete(existingLike.get());
+		}else{
+			MessageLike msgLike = new MessageLike();
+			msgLike.setMessageId(message);
+			msgLike.setUserId(user);
+			messageLikeRepository.save(msgLike);
+		}
 	}
 }
