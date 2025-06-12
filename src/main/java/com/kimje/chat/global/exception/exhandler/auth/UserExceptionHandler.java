@@ -22,8 +22,8 @@ public class UserExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(e.getMessage()));
 	}
 	@ExceptionHandler(UserNotFoundException.class)
-	public ResponseEntity<ApiResponse<?>> handleUserNotFoundException(UserNotFoundException e ,Long userId){
-		log.error("🔴[REFRESH] 존재하지 않는 사용자 | userId={}", userId);
+	public ResponseEntity<ApiResponse<?>> handleUserNotFoundException(UserNotFoundException e){
+		log.error("🔴[REFRESH] 존재하지 않는 사용자 ");
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
 	}
 
