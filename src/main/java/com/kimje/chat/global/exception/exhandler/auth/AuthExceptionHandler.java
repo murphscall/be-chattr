@@ -54,6 +54,12 @@ public class AuthExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
 	}
 
+	@ExceptionHandler(EmailNotVerificationException.class)
+	public ResponseEntity<ApiResponse<?>> handleVerificationCodeExpiredException(EmailNotVerificationException e) {
+		log.warn("🟡[API 요청 실패] 이메일 인증 미완료 | 응답코드 = {}" , STATUS_BAD_REQUEST );
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
+	}
+
 	@ExceptionHandler(BadCredentialsException.class)
 	public ResponseEntity<ApiResponse<?>> handleBadCredentialsException(BadCredentialsException e) {
 		log.info("🟡[Authentication] 인증 실패 : {}", e.getMessage());
