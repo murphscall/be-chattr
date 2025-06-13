@@ -31,7 +31,8 @@ public class ChatUserService {
 
 	public boolean joinUser(Long chatId, Long userId) {
 
-		Chat chat = em.getReference(Chat.class, chatId);
+		Chat chat = chatRepository.findById(chatId).
+				orElseThrow(() -> new IllegalStateException("존재하지 않는 채팅방입니다."));
 		User user = em.getReference(User.class, userId);
 
 		boolean existing = chatUserRepository.existsByChatIdAndUserId(chatId, user.getId());
@@ -56,7 +57,7 @@ public class ChatUserService {
 
 	public void exitUser(Long chatId, Long userId) {
 		ChatUser chatUser = chatUserRepository.findByChatIdAndUserId(chatId, userId)
-			.orElseThrow(() -> new IllegalArgumentException("채팅방에 참여하고 있지 않습니다."));
+			.orElseThrow(() -> new IllegalStateException("채팅방에 참여하고 있지 않습니다."));
 
 		boolean isMaster = chatUser.getRole() == ChatRole.MASTER;
 

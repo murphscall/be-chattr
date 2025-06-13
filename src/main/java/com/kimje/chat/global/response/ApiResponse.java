@@ -33,12 +33,18 @@ public class ApiResponse<T> {
 	public static <T> ApiResponse<T> success(T data , String message) {
 		return new ApiResponse<>(SUCCESS_STATUS, HttpStatus.OK.value(), data , message);
 	}
+	public static <T> ApiResponse<T> success(HttpStatus status,T data , String message) {
+		return new ApiResponse<>(SUCCESS_STATUS, status.value() , data , message);
+	}
 
 	public static <T> ApiResponse<T> error(T data) {
 		return new ApiResponse<>(FAIL_STATUS, HttpStatus.BAD_REQUEST.value(), data , null);
 	}
 	public static <T> ApiResponse<T> error(T data, String message) {
 		return new ApiResponse<>(FAIL_STATUS, HttpStatus.BAD_REQUEST.value(), data , message);
+	}
+	public static <T> ApiResponse<T> error(HttpStatus status, T data, String message) {
+		return new ApiResponse<>(FAIL_STATUS, status.value(), data, message);
 	}
 
 }

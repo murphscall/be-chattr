@@ -1,8 +1,8 @@
 package com.kimje.chat.user.service;
 
-import com.kimje.chat.global.exception.customexception.DuplicateResourceException;
-import com.kimje.chat.global.exception.customexception.EmailNotVerificationException;
-import com.kimje.chat.global.exception.customexception.UserNotFoundException;
+import com.kimje.chat.user.exception.DuplicateResourceException;
+import com.kimje.chat.emailauth.exception.EmailNotVerificationException;
+import com.kimje.chat.user.exception.UserNotFoundException;
 import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.user.dto.UserRequestDTO;
 import com.kimje.chat.user.dto.UserResponseDTO;
@@ -13,7 +13,6 @@ import com.kimje.chat.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

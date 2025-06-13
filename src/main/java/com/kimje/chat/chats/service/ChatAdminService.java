@@ -3,6 +3,7 @@ package com.kimje.chat.chats.service;
 import com.kimje.chat.chats.dto.ChatRequestDTO;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.enums.ChatRole;
+import com.kimje.chat.chats.exception.ChatBanAccessDeniedException;
 import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
 import com.kimje.chat.chats.service.message.SystemMessageService;
@@ -55,16 +56,18 @@ public class ChatAdminService {
 
 	@Transactional
 	public void kickUser(Long chatId, Long userId , AuthUser authUser) {
-		// 1. 현재 요청한  유저가 master의 권한을 갖고 있는지 ?
 		ChatUser masterUser = chatUserRepository.findByChatIdAndUserId(chatId, authUser.getUserId())
 			.orElseThrow(() -> new IllegalStateException("채팅방 참여자가 아닙니다."));
+
+		ChatUser targetUser = chatUserRepository.findByChatIdAndUserId(chatId, userId)
+				.orElseThrow(() -> new IllegalStateException("목록에 없는 참여자 입니다."));
 
 		if(userId.equals(authUser.getUserId())){
 			throw new IllegalStateException("자신은 추방할 수 없습니다.");
 		}
 
 		if(masterUser.getRole() != ChatRole.MASTER){
-			throw new IllegalStateException("추방 권한이 없습니다.");
+			throw new ChatBanAccessDeniedException("추방 권한이 없습니다.");
 		}
 
 		chatUserRepository.deleteByUserIdAndChatId(userId, chatId);

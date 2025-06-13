@@ -1,7 +1,7 @@
 package com.kimje.chat.global.security.jwt;
 
-import com.kimje.chat.global.exception.customexception.JwtInvalidTokenException;
-import com.kimje.chat.global.exception.customexception.JwtTokenExpiredException;
+import com.kimje.chat.global.exception.JwtInvalidTokenException;
+import com.kimje.chat.global.exception.JwtTokenExpiredException;
 import com.kimje.chat.global.security.CustomUserDetails;
 import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.enums.UserRole;
