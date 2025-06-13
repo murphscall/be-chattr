@@ -31,16 +31,16 @@ public class MessageController {
 
 	@GetMapping("/api/chats/{chatId}/message")
 	public ResponseEntity<?> getMessages(@PathVariable("chatId") Long chatId , @AuthenticationPrincipal AuthUser authUser) {
-		log.info("[MESSAGE] 메시지 목록 요청 : email = {} , chatId = {}", authUser.getEmail(),chatId );
+		log.info("🟢[MESSAGE] 메시지 목록 요청 : email = {} , chatId = {}", authUser.getEmail(),chatId );
 		List<MessageResponseDTO> messages = messageQueryService.getVisibleMessages(chatId,authUser);
-		log.info("[MESSAGE] 메시지 목록 반환 : messages ={}", messages);
+		log.info("🟢[MESSAGE] 메시지 목록 반환 : messages ={}", messages.get(0));
 		return ResponseEntity.ok().body(ApiResponse.success(messages));
 	}
 
 	@PostMapping("/api/chats/{chatId}/msg/{msgId}/likes")
 	public ResponseEntity<ApiResponse<?>> likeMessage(@PathVariable("chatId") Long chatId, @PathVariable("msgId") Long msgId , @AuthenticationPrincipal AuthUser authUser) {
 		messageCommandService.toggleLike(chatId, msgId , authUser.getUserId());
-		return ResponseEntity.ok().body(ApiResponse.success("좋아요 완료"));
+		return ResponseEntity.ok().body(ApiResponse.success("좋아요 토글 완료"));
 	}
 
 }

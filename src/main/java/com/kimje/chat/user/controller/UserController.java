@@ -1,6 +1,5 @@
 package com.kimje.chat.user.controller;
 
-import com.kimje.chat.global.exception.customexception.FieldErrorException;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.global.util.FieldErrorsHandlerUtil;
@@ -16,11 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Tag(name = "USER API", description = "회원 관련 API")
 @RestController

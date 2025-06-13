@@ -3,7 +3,7 @@ package com.kimje.chat.emailauth.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.kimje.chat.global.exception.customexception.FieldErrorException;
+import com.kimje.chat.global.exception.FieldErrorException;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.emailauth.dto.EmailRequestDTO;
 import com.kimje.chat.emailauth.service.EmailService;

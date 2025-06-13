@@ -1,7 +1,7 @@
 package com.kimje.chat.emailauth.service;
 
-import com.kimje.chat.global.exception.customexception.EmailCodeInvalidException;
-import com.kimje.chat.global.exception.customexception.EmailCodeExpiredException;
+import com.kimje.chat.emailauth.exception.EmailCodeInvalidException;
+import com.kimje.chat.emailauth.exception.EmailCodeExpiredException;
 import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.global.util.EmailVerifyPassGenerator;
 import com.kimje.chat.emailauth.dto.EmailRequestDTO;

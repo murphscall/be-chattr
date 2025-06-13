@@ -3,7 +3,8 @@ package com.kimje.chat.auth.controller;
 import com.kimje.chat.auth.dto.LoginDTO;
 import com.kimje.chat.auth.service.AuthService;
 import com.kimje.chat.auth.service.TokenService;
-import com.kimje.chat.global.exception.customexception.UserNotFoundException;
+import com.kimje.chat.global.exception.RefreshTokenNotFoundException;
+import com.kimje.chat.user.exception.UserNotFoundException;
 import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
@@ -52,6 +53,7 @@ public class AuthController {
 
 	@GetMapping("/authentication")
 	public ResponseEntity<ApiResponse<?>> authentication(@AuthenticationPrincipal AuthUser authUser) {
+		System.out.println("요청도착");
 
 		if (authUser == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("인증되지 않은 사용자"));
@@ -93,9 +95,7 @@ public class AuthController {
 		String refreshToken = CookieUtil.getCookie(request, "refreshToken");
 
 		if (refreshToken == null) {
-			log.info("🟡[REFRESH] 리프레쉬 토큰 없음");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-				.body(Map.of("error", "Refresh token not found"));
+			throw new RefreshTokenNotFoundException("리프레쉬 토큰이 존재하지 않음");
 		}
 
 

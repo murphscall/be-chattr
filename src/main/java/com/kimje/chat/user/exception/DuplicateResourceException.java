@@ -1,4 +1,4 @@
-package com.kimje.chat.global.exception.customexception;
+package com.kimje.chat.user.exception;
 
 import lombok.Getter;
 

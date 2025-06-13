@@ -1,9 +1,8 @@
 package com.kimje.chat.auth.service;
 
 import com.kimje.chat.auth.dto.LoginDTO;
-import com.kimje.chat.global.exception.customexception.LoginFailException;
+import com.kimje.chat.auth.exception.LoginFailException;
 import com.kimje.chat.global.security.CustomUserDetails;
-import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.global.util.CookieUtil;
 import com.kimje.chat.user.dto.UserResponseDTO;
 import com.kimje.chat.user.enums.UserRole;

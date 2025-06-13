@@ -1,12 +1,8 @@
 package com.kimje.chat.global.exception.exhandler;
 
-import com.kimje.chat.global.exception.customexception.FieldErrorException;
-import com.kimje.chat.global.exception.customexception.EmailCodeInvalidException;
-import com.kimje.chat.global.exception.customexception.EmailCodeExpiredException;
-import com.kimje.chat.global.response.ApiResponse;
 
+import com.kimje.chat.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Hidden;
-import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
@@ -19,24 +15,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-	// 필드 에러 예외 핸들러
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<?>> handleIllegalStateException(IllegalStateException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
+    }
 
-	@ExceptionHandler(FieldErrorException.class)
-	public ResponseEntity<ApiResponse<?>> handleFieldErrorsException(FieldErrorException e) {
-		log.info("");
-		return ResponseEntity
-			.status(HttpStatus.BAD_REQUEST)
-			.body(ApiResponse.error(e.getErrors()));
-	}
-
-	@ExceptionHandler(IllegalStateException.class)
-	public ResponseEntity<ApiResponse<?>> handleIllegalStateException(IllegalStateException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(e.getMessage()));
-	}
-
-
-
-
-
-
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
+        log.error(e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                null,
+                                "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요")
+                );
+    }
 }
