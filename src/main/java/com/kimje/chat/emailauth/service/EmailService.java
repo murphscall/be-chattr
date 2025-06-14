@@ -11,11 +11,13 @@ import jakarta.mail.internet.MimeMessage;
 
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EmailService {
 	private final RedisService redisService;
 	private final JavaMailSender mailSender;
@@ -30,7 +32,7 @@ public class EmailService {
 	}
 
 	public void sendEmail(EmailRequestDTO.Send dto) throws MessagingException {
-
+		log.info("===== 이메일 발송 시작: {} =====", dto.getEmail());
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
 		String code = emailVerifyPassGenerator.generateCode();
@@ -46,8 +48,13 @@ public class EmailService {
 				+ "</body></html>";
 
 		helper.setText(content, true);
+		log.info("===== Redis 저장 시작 =====");
 		redisService.set(dto.getEmail(), code, 5, TimeUnit.MINUTES);
+		log.info("===== Redis 저장 완료 =====");
+
+		log.info("===== Gmail 발송 시작 =====");
 		mailSender.send(message);
+		log.info("===== Gmail 발송 완료 =====");
 	}
 
 	public void verifyCode(EmailRequestDTO.Verify dto) throws MessagingException {
