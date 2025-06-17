@@ -35,7 +35,7 @@ public class ChatUserService {
 				orElseThrow(() -> new IllegalStateException("존재하지 않는 채팅방입니다."));
 		User user = em.getReference(User.class, userId);
 
-		boolean existing = chatUserRepository.existsByChatIdAndUserId(chatId, user.getId());
+		boolean existing = chatUserRepository.existsByChatIdAndUserId(chatId,userId );
 		if (existing) {
 			return false;
 		}

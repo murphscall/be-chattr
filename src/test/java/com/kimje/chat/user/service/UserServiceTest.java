@@ -41,12 +41,7 @@ class UserServiceTest {
   @DisplayName("회원 생성 성공")
   public void createUser_Success(){
     //given
-    UserRequestDTO.Create dto = UserRequestDTO.Create.builder()
-            .email("test@example.com")
-            .password("password123")
-            .phone("010-2231-5564")
-            .name("김철수")
-            .build();
+    UserRequestDTO.Create dto = createUserDTO();
 
     when(redisService.get("test@example.com")).thenReturn("true");
     when(userRepository.findByEmail("test@example.com"))
@@ -88,6 +83,7 @@ class UserServiceTest {
 
 
   @Test
+  @DisplayName("이메일 중복 예외 발생")
   public void createUser_DuplicateEmail_ThrowsException() {
     UserRequestDTO.Create dto = createUserDTO();
     User existingUser = new User();
@@ -100,4 +96,24 @@ class UserServiceTest {
     verify(userRepository, never()).save(any(User.class));
 
   }
+
+  @Test
+  public void deleteUserTest(){
+    long userId = 1L;
+    UserRequestDTO.Delete dto = UserRequestDTO.Delete.builder()
+        .password("sy8583lk^^")
+        .build();
+    User user = new User();
+    user.setId(1L);
+    user.setPassword(dto.getPassword());
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+    when(passwordEncoder.matches(dto.getPassword(),user.getPassword())).thenReturn(true);
+
+    userService.deleteUser(dto,userId);
+
+    verify(userRepository).delete(any(User.class));
+
+  }
+
 }
