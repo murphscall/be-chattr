@@ -1,0 +1,51 @@
+spring:
+  # 🎯 로컬: 기본값 제공으로 편의성 증대
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/chattr}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASS:password}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO}
+    show-sql: true  # 🎯 로컬: SQL 로그 출력
+
+  # 🎯 로컬: 고정 Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # 🎯 로컬: 테스트 메일 (MailHog 등)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # 🎯 로컬: OAuth2 기본값
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID:dummy}
+            client-secret: ${KAKAO_CLIENT_SECRET:dummy}
+            redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/login/oauth2/code/kakao}
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:dummy}
+            client-secret: ${GOOGLE_CLIENT_SECRET:dummy}
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+
+# 🎯 로컬: 디버그 로깅
+logging:
+  level:
+    com.kimje: debug
+    org.springframework.security: debug
+    org.hibernate.SQL: debug
