@@ -73,13 +73,12 @@ public class AuthService {
 		if (refreshToken != null && tokenService.validateRefreshToken(refreshToken)) {
 			tokenService.deleteRefreshToken(refreshToken);
 
-			ResponseCookie expiredAccessCookie = CookieUtil.deleteCookie("accessToken");
-			ResponseCookie expiredRefreshCookie = CookieUtil.deleteCookie("refreshToken");
-
-			response.addHeader("Set-Cookie", expiredAccessCookie.toString());
-			response.addHeader("Set-Cookie", expiredRefreshCookie.toString());
-
 		}
+		ResponseCookie expiredAccessCookie = CookieUtil.deleteCookie("accessToken");
+		ResponseCookie expiredRefreshCookie = CookieUtil.deleteCookie("refreshToken");
+
+		response.addHeader("Set-Cookie", expiredAccessCookie.toString());
+		response.addHeader("Set-Cookie", expiredRefreshCookie.toString());
 		log.info("🟢[LOGOUT] 쿠키 및 토큰 삭제 완료 ");
 	}
 
