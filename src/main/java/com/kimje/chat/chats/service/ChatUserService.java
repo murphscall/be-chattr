@@ -18,6 +18,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class ChatUserService {
 	private final ChatRoomRepository chatRepository;
 	private final EntityManager em;
 
+	@Transactional
 	public boolean joinUser(Long chatId, Long userId) {
 
 		Chat chat = chatRepository.findById(chatId).
@@ -55,6 +57,7 @@ public class ChatUserService {
 		return true;
 	}
 
+	@Transactional
 	public void exitUser(Long chatId, Long userId) {
 		ChatUser chatUser = chatUserRepository.findByChatIdAndUserId(chatId, userId)
 			.orElseThrow(() -> new IllegalStateException("채팅방에 참여하고 있지 않습니다."));
