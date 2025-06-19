@@ -2,7 +2,7 @@ name: Deploy to AWS
 
 on:
   push:
-    branches: [master]  # 본인 브랜치명 확인
+    branches: [main, master]  # 두 브랜치 모두 지원
   workflow_dispatch:
 
 jobs:
@@ -41,16 +41,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Docker build & push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/chattr:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # 간단한 Docker 빌드 방법으로 변경 (캐시 제거)
+      - name: Docker 이미지 빌드 및 푸시
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/chattr:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/chattr:latest
 
       - name: AWS 서버에 배포
         uses: appleboy/ssh-action@v1.0.0
@@ -63,7 +58,7 @@ jobs:
             docker-compose down || true
             
             # GitHub에서 최신 docker-compose.yml 다운로드
-            curl -o docker-compose.yml https://raw.githubusercontent.com/murphscall/be-chattr/main/docker-compose.yml
+            curl -o docker-compose.yml https://raw.githubusercontent.com/murphscall/be-chattr/master/docker-compose.yml
             
             # 환경변수 설정
             export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
