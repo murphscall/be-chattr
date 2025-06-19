@@ -1,7 +1,7 @@
 spring:
   # 🎯 로컬: 기본값 제공으로 편의성 증대
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/chattr}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/chat_test}
     username: ${DB_USERNAME:root}
     password: ${DB_PASS:password}
 
@@ -9,6 +9,7 @@ spring:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL_AUTO}
     show-sql: true  # 🎯 로컬: SQL 로그 출력
+    database-platform: org.hibernate.dialect.MySQLDialect
 
   # 🎯 로컬: 고정 Redis
   data:
@@ -42,6 +43,10 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID:dummy}
             client-secret: ${GOOGLE_CLIENT_SECRET:dummy}
             redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+
+jwt:
+  secret: lWA/Sxv1D7XUvjzmXsLgwjcAtMo1Tp6ZBz5tEeAUbPw=
+  access-token-validity-in-ms: 3600000
 
 # 🎯 로컬: 디버그 로깅
 logging:

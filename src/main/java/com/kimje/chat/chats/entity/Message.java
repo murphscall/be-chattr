@@ -40,7 +40,7 @@ public class Message {
 	@JoinColumn(name = "chat_id")
 	private Chat chatId;
 	@OneToMany(mappedBy = "messageId", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<MessageLike> likes = new ArrayList<>();
+	private final List<MessageLike> likes = new ArrayList<>();
 
 	@PrePersist
 	public void prePersist() {

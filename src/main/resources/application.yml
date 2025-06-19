@@ -1,8 +1,10 @@
+
 spring:
   application:
     name: backend
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local}
+    activate: ${SPRING_PROFILES_ACTIVE}
+
 
   # 🎯 공통: OAuth2 설정을 여기로
   security:
