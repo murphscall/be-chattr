@@ -9,18 +9,18 @@ spring:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL_AUTO:validate}  # 🎯 운영: 기본값 validate
     show-sql: false  # 🎯 운영: SQL 로그 끔
-
+    database-platform: org.hibernate.dialect.MySQLDialect
   # 🎯 운영: Redis 환경변수
   data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      password: ${REDIS_PASSWORD}
 
   # 🎯 운영: 실제 메일 서버
   mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT:587}
+    host: smtp.gmail.com
+    port: 587
     username: ${SPRING_MAIL_USERNAME}
     password: ${SPRING_MAIL_PASSWORD}
     properties:
@@ -47,6 +47,8 @@ spring:
 # 🎯 운영: 최소 로깅 (성능)
 logging:
   level:
-    com.kimje: warn
-    org.springframework.security: warn
-    root: error
+    com.kimje: info
+    org.springframework.security: info
+    com.zaxxer.hikari: DEBUG      # DB 연결 로그
+    org.springframework.data.redis: DEBUG  # Redis 연결 로그
+    root: info

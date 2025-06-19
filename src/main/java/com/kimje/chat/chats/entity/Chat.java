@@ -42,7 +42,7 @@ public class Chat {
 	private LocalDateTime createdAt;
 
 	@OneToMany(mappedBy = "chat", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<ChatUser> chatUsers = new ArrayList<>();
+	private final List<ChatUser> chatUsers = new ArrayList<>();
 
 	@PrePersist
 	public void prePersist() {
