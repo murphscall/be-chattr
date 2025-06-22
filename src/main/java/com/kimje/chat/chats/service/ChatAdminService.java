@@ -55,14 +55,14 @@ public class ChatAdminService {
 	}
 
 	@Transactional
-	public void kickUser(Long chatId, Long userId , AuthUser authUser) {
+	public void kickUser(Long chatId, Long targetUserId , AuthUser authUser) {
 		ChatUser masterUser = chatUserRepository.findByChatIdAndUserId(chatId, authUser.getUserId())
 			.orElseThrow(() -> new IllegalStateException("채팅방 참여자가 아닙니다."));
 
-		ChatUser targetUser = chatUserRepository.findByChatIdAndUserId(chatId, userId)
+		ChatUser targetUser = chatUserRepository.findByChatIdAndUserId(chatId, targetUserId)
 				.orElseThrow(() -> new IllegalStateException("목록에 없는 참여자 입니다."));
 
-		if(userId.equals(authUser.getUserId())){
+		if(targetUserId.equals(authUser.getUserId())){
 			throw new IllegalStateException("자신은 추방할 수 없습니다.");
 		}
 
@@ -70,8 +70,8 @@ public class ChatAdminService {
 			throw new ChatBanAccessDeniedException("추방 권한이 없습니다.");
 		}
 
-		chatUserRepository.deleteByUserIdAndChatId(userId, chatId);
-		systemMessageService.sendKickNotice(chatId, userId);
+		chatUserRepository.deleteByUserIdAndChatId(targetUserId, chatId);
+		systemMessageService.sendKickNotice(chatId, targetUserId);
 
 	}
 }
