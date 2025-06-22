@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,6 +111,7 @@ public class ChatUserService {
 			.collect(Collectors.toList());
 	}
 
+	@Cacheable(value = "createdChats" , key = "#userId")
 	public List<ChatResponseDTO.ChatInfo> getCreateByMeChats(Long userId) {
 		return chatUserRepository.findChatsByUserIdAndRole(userId,ChatRole.MASTER);
 	}

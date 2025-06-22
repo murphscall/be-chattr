@@ -14,6 +14,7 @@ import com.kimje.chat.user.dto.UserResponseDTO;
 import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.enums.UserRole;
 import com.kimje.chat.user.repository.UserRepository;
+import com.kimje.chat.user.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,27 +42,25 @@ public class AuthController {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisService redisService;
 	private final UserRepository userRepository;
+	private final UserService userService;
 
 	public AuthController(AuthService authService, TokenService tokenService, JwtTokenProvider jwtTokenProvider,
-		RedisService redisService, UserRepository userRepository) {
+		RedisService redisService, UserRepository userRepository, UserService userService) {
 		this.authService = authService;
 		this.tokenService = tokenService;
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.redisService = redisService;
 		this.userRepository = userRepository;
+		this.userService = userService;
 	}
 
 	@GetMapping("/authentication")
 	public ResponseEntity<ApiResponse<?>> authentication(@AuthenticationPrincipal AuthUser authUser) {
-		System.out.println("요청도착");
-
 		if (authUser == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("인증되지 않은 사용자"));
 		}
-		User user = userRepository.findById(authUser.getUserId())
-			.orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다."));
 
-		UserResponseDTO.Info info = new UserResponseDTO.Info(user.getId(),user.getEmail(),user.getName(),user.getPhone(),user.getCreatedAt());
+		UserResponseDTO.Info info = userService.getUserInfo(authUser.getUserId());
 
 		return ResponseEntity.ok().body(ApiResponse.success(info));
 
@@ -110,14 +109,13 @@ public class AuthController {
 		}
 		Long userId = Long.parseLong(userIdStr);
 
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException("존재하지 않는 사용자 입니다.",userId));
+		UserResponseDTO.Info userInfo = userService.getUserInfo(userId);
 		log.info("🟢[REFRESH] 리프레쉬 토큰 확인 완료 | userId={}", userId);
 		// 3. 새 accessToken 발급 후 쿠키로 응답
 		// 기존 리프레쉬 토큰 삭제 후 새로운 리프레쉬 토큰 발급
-		tokenService.createAccessToken(user.getId(), UserRole.ROLE_USER, response);
+		tokenService.createAccessToken(userInfo.getUserId(), UserRole.ROLE_USER, response);
 		tokenService.deleteRefreshToken(refreshToken);
-		tokenService.createAndSaveRefreshToken(user.getId(), response);
+		tokenService.createAndSaveRefreshToken(userInfo.getUserId(), response);
 
 		log.info("🟢[REFRESH] 액세스/리프레시 토큰 재발급 완료 | userId={}", userId);
 		return ResponseEntity.ok().body(ApiResponse.success("리프레쉬 토큰 발급"));

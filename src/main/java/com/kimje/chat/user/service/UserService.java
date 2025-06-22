@@ -13,6 +13,7 @@ import com.kimje.chat.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,10 +75,11 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
+	@Cacheable(value = "userInfo" , key = "#userId")
 	public UserResponseDTO.Info getUserInfo(long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다.",userId));
-
+		System.out.println("db조회됨");
 		return UserResponseDTO.Info.builder()
 			.userId(user.getId())
 			.email(user.getEmail())
