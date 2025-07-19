@@ -9,12 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.enums.ChatRole;
 import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
-import com.kimje.chat.chats.service.message.SystemMessageService;
 import com.kimje.chat.global.security.CustomUserDetails;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.entity.User;

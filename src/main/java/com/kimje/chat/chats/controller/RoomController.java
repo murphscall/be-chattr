@@ -3,9 +3,8 @@ package com.kimje.chat.chats.controller;
 import com.kimje.chat.chats.dto.ChatAllResponseDTO;
 import com.kimje.chat.chats.dto.ChatRequestDTO;
 import com.kimje.chat.chats.dto.ChatResponseDTO;
-import com.kimje.chat.chats.service.RoomQueryService;
-import com.kimje.chat.chats.service.RoomCommandService;
-import com.kimje.chat.chats.service.ChatUserService;
+import com.kimje.chat.chats.service.ChatQueryService;
+import com.kimje.chat.chats.service.ChatCommandService;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.response.PageResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
@@ -34,9 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RoomController {
 
-	private final RoomQueryService roomQueryService;
-	private final RoomCommandService roomCommandService;
-	private final ChatUserService chatUserService;
+	private final ChatQueryService chatQueryService;
+	private final ChatCommandService chatCommandService;
 	private final FieldErrorsHandlerUtil fieldErrorsHandlerUtil;
 
 	@PreAuthorize("hasRole('USER')")
@@ -44,10 +42,10 @@ public class RoomController {
 	public ResponseEntity<ApiResponse<ChatAllResponseDTO>> allChatsList(@AuthenticationPrincipal AuthUser authUser , Pageable pageable){
 
 		ChatAllResponseDTO chatAllResponseDTO = new ChatAllResponseDTO();
-		chatAllResponseDTO.setAllChats(roomQueryService.getChats(pageable));
-		chatAllResponseDTO.setHotChats(roomQueryService.getHotChats(pageable));
-		chatAllResponseDTO.setMyChats(chatUserService.getCreateByMeChats(authUser.getUserId()));
-		chatAllResponseDTO.setMeChats(roomQueryService.getMyChats(authUser, pageable));
+		chatAllResponseDTO.setAllChats(chatQueryService.getChats(pageable));
+		chatAllResponseDTO.setHotChats(chatQueryService.getHotChats(pageable));
+		chatAllResponseDTO.setMyChats(chatQueryService.getCreateByMeChats(authUser.getUserId()));
+		chatAllResponseDTO.setMeChats(chatQueryService.getMyChats(authUser, pageable));
 		return ResponseEntity.ok().body(ApiResponse.success(chatAllResponseDTO));
 	}
 
@@ -55,27 +53,27 @@ public class RoomController {
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/api/chats/list")
 	public ResponseEntity<ApiResponse<?>> getChatsList(Pageable pageable) {
-		PageResponse<ChatResponseDTO.ChatInfo> chatList = roomQueryService.getChats(pageable);
+		PageResponse<ChatResponseDTO.ChatInfo> chatList = chatQueryService.getChats(pageable);
 		return ResponseEntity.ok().body(ApiResponse.success(chatList));
 	}
 
 	// 핫한 채팅방 목록
 	@GetMapping("/api/chats/hot")
 	public ResponseEntity<ApiResponse<?>> getHotChats(Pageable pageable) {
-		PageResponse<ChatResponseDTO.ChatInfo> chatList = roomQueryService.getHotChats(pageable);
+		PageResponse<ChatResponseDTO.ChatInfo> chatList = chatQueryService.getHotChats(pageable);
 		return ResponseEntity.ok().body(ApiResponse.success(chatList));
 	}
 
 	// 참여중인 채팅방
 	@GetMapping("/api/chats/me")
 	public ResponseEntity<?> getMyChats(@AuthenticationPrincipal AuthUser authUser , Pageable pageable) {
-		PageResponse<ChatResponseDTO.ChatInfo> myChats = roomQueryService.getMyChats(authUser,pageable);
+		PageResponse<ChatResponseDTO.ChatInfo> myChats = chatQueryService.getMyChats(authUser,pageable);
 		return ResponseEntity.ok().body(ApiResponse.success(myChats));
 	}
 
 	@GetMapping("/api/chats/my")
 	public ResponseEntity<?> getCreateByMeChats(@AuthenticationPrincipal AuthUser authUser) {
-		List<ChatResponseDTO.ChatInfo> list = chatUserService.getCreateByMeChats(authUser.getUserId());
+		List<ChatResponseDTO.ChatInfo> list = chatQueryService.getCreateByMeChats(authUser.getUserId());
 		return ResponseEntity.ok().body(ApiResponse.success(list));
 	}
 
@@ -89,7 +87,7 @@ public class RoomController {
 		if (result.hasErrors()) {
 			fieldErrorsHandlerUtil.fieldErrorsHandler(result);
 		}
-		ChatResponseDTO.ChatInfo chatResponse = roomCommandService.createChatRoom(authUser.getUserId(), dto);
+		ChatResponseDTO.ChatInfo chatResponse = chatCommandService.createChatRoom(authUser.getUserId(), dto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(chatResponse));
 	}
 

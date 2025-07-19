@@ -3,12 +3,14 @@ package com.kimje.chat.chats.service;
 import com.kimje.chat.chats.dto.ChatRequestDTO;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.enums.ChatRole;
+import com.kimje.chat.chats.event.UserKickChatEvent;
 import com.kimje.chat.chats.exception.ChatBanAccessDeniedException;
 import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
-import com.kimje.chat.chats.service.message.SystemMessageService;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +19,11 @@ public class ChatAdminService {
 
 	private final ChatUserRepository chatUserRepository;
 	private final ChatRoomRepository chatRepository;
-	private final SystemMessageService systemMessageService;
-
-	public ChatAdminService(ChatUserRepository chatUserRepository, ChatRoomRepository chatRepository , SystemMessageService systemMessageService) {
+	private final ApplicationEventPublisher eventPublisher;
+	public ChatAdminService(ChatUserRepository chatUserRepository, ChatRoomRepository chatRepository , ApplicationEventPublisher eventPublisher) {
 		this.chatUserRepository = chatUserRepository;
 		this.chatRepository = chatRepository;
-		this.systemMessageService = systemMessageService;
+		this.eventPublisher = eventPublisher;
 	}
 
 	public void changeRole(Long userId, Long chatId, Long targetId, ChatRequestDTO.ChangeRole dto) {
@@ -62,6 +63,8 @@ public class ChatAdminService {
 		ChatUser targetUser = chatUserRepository.findByChatIdAndUserId(chatId, targetUserId)
 				.orElseThrow(() -> new IllegalStateException("목록에 없는 참여자 입니다."));
 
+		String targetUserName = targetUser.getUser().getName();
+
 		if(targetUserId.equals(authUser.getUserId())){
 			throw new IllegalStateException("자신은 추방할 수 없습니다.");
 		}
@@ -71,7 +74,7 @@ public class ChatAdminService {
 		}
 
 		chatUserRepository.deleteByUserIdAndChatId(targetUserId, chatId);
-		systemMessageService.sendKickNotice(chatId, targetUserId);
+		eventPublisher.publishEvent(new UserKickChatEvent(this , chatId , targetUserName , targetUserId));
 
 	}
 }
