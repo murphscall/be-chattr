@@ -7,7 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: ${HIBERNATE_DDL_AUTO}
+      ddl-auto: create-drop
     show-sql: true  # 🎯 로컬: SQL 로그 출력
     database-platform: org.hibernate.dialect.MySQLDialect
 

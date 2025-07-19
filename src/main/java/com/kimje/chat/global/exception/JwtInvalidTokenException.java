@@ -1,6 +1,8 @@
 package com.kimje.chat.global.exception;
 
-public class JwtInvalidTokenException extends RuntimeException {
+import org.springframework.security.core.AuthenticationException;
+
+public class JwtInvalidTokenException extends AuthenticationException {
 
 	public JwtInvalidTokenException(String message) {
 		super(message);

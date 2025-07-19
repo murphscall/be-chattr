@@ -23,6 +23,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -111,7 +112,7 @@ public class JwtTokenProvider {
 		}
 	}
 
-	public void validateTokenOrThrow(String token) {
+	public void validateTokenOrThrow(String token) throws AuthenticationException {
 		try {
 			log.debug("🔵[ACCESS TOKEN] 토큰 검증 시작");
 			Jwts.parserBuilder()
