@@ -28,8 +28,7 @@ public class SystemMessageService {
 	private final EntityManager em;
 	private final ChatUserRepository chatUserRepository;
 	private final UserRepository userRepository;
-	private final MessageRepository messageRepository;
-	private final MessageLikeRepository messageLikeRepository;
+
 
 	public void sendJoinNotice(Long chatId, AuthUser authUser) {
 

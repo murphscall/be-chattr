@@ -6,10 +6,10 @@ services:
     container_name: chattr-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 693256
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
       MYSQL_DATABASE: chattr
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -25,7 +25,7 @@ services:
       - chattr-network
 
   app:
-    image: ${DOCKER_USERNAME}/chattr:latest
+    build: .
     container_name: chattr
     restart: always
     depends_on:
@@ -33,24 +33,8 @@ services:
       - redis
     ports:
       - "8080:8080"
-    environment:
-      - DB_URL=jdbc:mysql://mysql:3306/chattr
-      - DB_USERNAME=root
-      - DB_PASS=693256
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - HIBERNATE_DDL_AUTO=update
-      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
-      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_ACCESS_EXPIRATION=${JWT_ACCESS_EXPIRATION}
-      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
-      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
-      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+    env_file:
+      - ./.env
     networks:
       - chattr-network
 

@@ -67,17 +67,14 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 	void deleteByUserIdAndChatId(@Param("userId") Long userId, @Param("chatId") Long chatId);
 
 	@Query("""
-		    SELECT new com.kimje.chat.chats.dto.ChatResponseDTO$ChatInfo(
-		        c.id, c.title, c.description, c.topic, COUNT(cu), c.createdAt)
-		    FROM Chat c
-		    JOIN c.chatUsers cu
-		    WHERE c.id IN (
-		        SELECT cu2.chat.id
-		        FROM ChatUser cu2
-		        WHERE cu2.user.id = :userId AND cu2.role = :role
-		    )
-		    GROUP BY c.id, c.title, c.description, c.topic, c.createdAt
-		    ORDER BY c.createdAt DESC
-		""")
+       SELECT new com.kimje.chat.chats.dto.ChatResponseDTO$ChatInfo(
+           c.id, c.title, c.description, c.topic, COUNT(cu_count.id), c.createdAt)
+       FROM ChatUser cu_master
+       JOIN cu_master.chat c
+       LEFT JOIN c.chatUsers cu_count
+       WHERE cu_master.user.id = :userId AND cu_master.role = :role
+       GROUP BY c.id, c.title, c.description, c.topic, c.createdAt
+       ORDER BY c.createdAt DESC
+   """)
 	List<ChatResponseDTO.ChatInfo> findChatsByUserIdAndRole(@Param("userId") Long userId, @Param("role") ChatRole role);
 }

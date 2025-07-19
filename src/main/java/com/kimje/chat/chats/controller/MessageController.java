@@ -33,7 +33,12 @@ public class MessageController {
 	public ResponseEntity<?> getMessages(@PathVariable("chatId") Long chatId , @AuthenticationPrincipal AuthUser authUser) {
 		log.info("🟢[MESSAGE] 메시지 목록 요청 : email = {} , chatId = {}", authUser.getEmail(),chatId );
 		List<MessageResponseDTO> messages = messageQueryService.getVisibleMessages(chatId,authUser);
-		log.info("🟢[MESSAGE] 메시지 목록 반환 : messages ={}", messages.get(0));
+		if(!messages.isEmpty()){
+			log.info("🟢[MESSAGE] 메시지 목록 반환 : messages ={}", messages.get(0));
+		}else{
+			log.info("🟢[MESSAGE] 반환된 메시지 없음 : chatId = {}", chatId);
+		}
+
 		return ResponseEntity.ok().body(ApiResponse.success(messages));
 	}
 

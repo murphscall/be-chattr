@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class ChatUserService {
 	private final EntityManager em;
 
 	@Transactional
+	@CacheEvict(value = "chatMembers", key = "#chatId")
 	public boolean joinUser(Long chatId, Long userId) {
 
 		Chat chat = chatRepository.findById(chatId).
@@ -59,6 +61,7 @@ public class ChatUserService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "chatMembers", key = "#chatId")
 	public void exitUser(Long chatId, Long userId) {
 		ChatUser chatUser = chatUserRepository.findByChatIdAndUserId(chatId, userId)
 			.orElseThrow(() -> new IllegalStateException("채팅방에 참여하고 있지 않습니다."));
@@ -99,6 +102,7 @@ public class ChatUserService {
 		chatUserRepository.delete(chatUser);
 	}
 
+	@Cacheable(value = "chatMembers", key = "#chatId")
 	public List<ChatUserInfo> getMembers(Long chatId) {
 		List<ChatUser> members = chatUserRepository.findAllByChatId(chatId);
 

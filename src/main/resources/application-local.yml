@@ -43,6 +43,12 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET:dummy}
             redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
 
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
+
 # 🎯 로컬: 디버그 로깅
 logging:
   level:

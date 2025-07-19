@@ -1,5 +1,6 @@
 package com.kimje.chat.chats.controller;
 
+import com.kimje.chat.chats.dto.ChatAllResponseDTO;
 import com.kimje.chat.chats.dto.ChatRequestDTO;
 import com.kimje.chat.chats.dto.ChatResponseDTO;
 import com.kimje.chat.chats.service.RoomQueryService;
@@ -37,6 +38,18 @@ public class RoomController {
 	private final RoomCommandService roomCommandService;
 	private final ChatUserService chatUserService;
 	private final FieldErrorsHandlerUtil fieldErrorsHandlerUtil;
+
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/api/chats/allList")
+	public ResponseEntity<ApiResponse<ChatAllResponseDTO>> allChatsList(@AuthenticationPrincipal AuthUser authUser , Pageable pageable){
+
+		ChatAllResponseDTO chatAllResponseDTO = new ChatAllResponseDTO();
+		chatAllResponseDTO.setAllChats(roomQueryService.getChats(pageable));
+		chatAllResponseDTO.setHotChats(roomQueryService.getHotChats(pageable));
+		chatAllResponseDTO.setMyChats(chatUserService.getCreateByMeChats(authUser.getUserId()));
+		chatAllResponseDTO.setMeChats(roomQueryService.getMyChats(authUser, pageable));
+		return ResponseEntity.ok().body(ApiResponse.success(chatAllResponseDTO));
+	}
 
 	// 전체 채팅방 목록
 	@PreAuthorize("hasRole('USER')")

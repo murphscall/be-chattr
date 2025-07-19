@@ -47,8 +47,6 @@ public class AuthService {
 			throw new LoginFailException("아이디 또는 비밀번호 불일치");
 		}
 
-
-
 		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UserRole role = userDetails.getRole();
 		// 여기 까지 user 로그인 정보 확인
