@@ -16,15 +16,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+	private final ObjectMapper objectMapper = new ObjectMapper();
+
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException authException) throws IOException, ServletException {
+
 		response.setContentType("application/json; charset=utf-8");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		ApiResponse<?> errorResponse = ApiResponse.error(HttpStatus.UNAUTHORIZED, null , "액세스 토큰 유효하지 않음");
-		ObjectMapper objectMapper = new ObjectMapper();
-		String body = objectMapper.writeValueAsString(errorResponse);
 
+		String errorMessage = authException.getMessage();
+		ApiResponse<?> errorResponse = ApiResponse.error(HttpStatus.UNAUTHORIZED, null , errorMessage);
+
+		String body = objectMapper.writeValueAsString(errorResponse);
 		response.getWriter().write(body);
 	}
 }
