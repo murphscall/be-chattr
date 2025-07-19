@@ -24,7 +24,10 @@ import jakarta.persistence.EntityManager;
 class ChatUserServiceTest {
 
 	@InjectMocks
-	ChatUserService chatUserService;
+	ChatCommandService chatCommandService;
+
+	@InjectMocks
+	ChatQueryService chatQueryService;
 
 	@Mock
 	ChatUserRepository chatUserRepository;
@@ -50,7 +53,7 @@ class ChatUserServiceTest {
 		when(chatUserRepository.existsByChatIdAndUserId(chatId,userId)).thenReturn(false);
 		when(chatUserRepository.countByChatId(chatId)).thenReturn(memberCount);
 
-		chatUserService.joinUser(chatId,userId);
+		chatCommandService.joinUser(chatId,userId);
 
 		verify(chatUserRepository).save(any(ChatUser.class));
 	}
@@ -63,7 +66,7 @@ class ChatUserServiceTest {
 		when(chatUserRepository.existsByChatIdAndUserId(chatId,userId)).thenReturn(true);
 
 
-		assertThat(chatUserService.joinUser(chatId,userId)).isFalse();
+		assertThat(chatCommandService.joinUser(chatId,userId)).isFalse();
 	}
 
 	@Test
@@ -76,7 +79,7 @@ class ChatUserServiceTest {
 		when(chatUserRepository.countByChatId(chatId)).thenReturn(memberCount);
 
 
-		assertThrows(IllegalStateException.class, () -> chatUserService.joinUser(chatId,userId));
+		assertThrows(IllegalStateException.class, () -> chatCommandService.joinUser(chatId,userId));
 	}
 
 
@@ -89,7 +92,7 @@ class ChatUserServiceTest {
 				.thenReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> chatUserService.exitUser(chatId, userId))
+			assertThatThrownBy(() -> chatCommandService.exitUser(chatId, userId))
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessage("채팅방에 참여하고 있지 않습니다.");
 	}
@@ -101,7 +104,7 @@ class ChatUserServiceTest {
 		when(chatUserRepository.findByChatIdAndUserId(chatId,userId))
 			.thenReturn(Optional.of(chatUser));
 
-		chatUserService.exitUser(chatId,userId);
+		chatCommandService.exitUser(chatId,userId);
 
 		verify(chatUserRepository).delete(chatUser);
 		verify(chatUserRepository, never()).countByChatId(anyLong());
@@ -116,7 +119,7 @@ class ChatUserServiceTest {
 			.thenReturn(Optional.of(chatUser));
 		when(chatUserRepository.countByChatId(chatId)).thenReturn(1);
 
-		chatUserService.exitUser(chatId,userId);
+		chatCommandService.exitUser(chatId,userId);
 		verify(chatUserRepository).delete(chatUser);
 		verify(chatRoomRepository).deleteById(chatId);
 	}
@@ -132,7 +135,7 @@ class ChatUserServiceTest {
 		when(chatUserRepository.countByChatId(chatId)).thenReturn(3);
 		when(chatUserRepository.findFirstByChatIdAndRole(chatId,ChatRole.MANAGER)).thenReturn(Optional.of(managerUser));
 
-		chatUserService.exitUser(chatId,userId);
+		chatCommandService.exitUser(chatId,userId);
 
 		assertThat(managerUser.getRole()).isEqualTo(ChatRole.MASTER);
 		verify(chatUserRepository).save(managerUser);
@@ -153,7 +156,7 @@ class ChatUserServiceTest {
 		when(chatUserRepository.findFirstByChatIdAndRole(chatId,ChatRole.MEMBER)).thenReturn(Optional.of(memberUser));
 
 
-		chatUserService.exitUser(chatId,userId);
+		chatCommandService.exitUser(chatId,userId);
 
 
 		assertThat(memberUser.getRole()).isEqualTo(ChatRole.MASTER);
@@ -175,7 +178,7 @@ class ChatUserServiceTest {
 
 
 		assertThatThrownBy(() ->
-			chatUserService.exitUser(chatId,userId))
+			chatCommandService.exitUser(chatId,userId))
 			.isInstanceOf(IllegalStateException.class)
 				.hasMessage("위임할 대상이 없습니다.");
 	}

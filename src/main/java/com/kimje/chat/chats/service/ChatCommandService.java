@@ -1,43 +1,85 @@
 package com.kimje.chat.chats.service;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.kimje.chat.chats.dto.ChatRequestDTO;
 import com.kimje.chat.chats.dto.ChatResponseDTO;
-import com.kimje.chat.chats.dto.ChatResponseDTO.ChatUserInfo;
 import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.enums.ChatRole;
+import com.kimje.chat.chats.event.UserJoinedChatEvent;
+import com.kimje.chat.chats.event.UserLeftChatEvent;
 import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
 import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.repository.UserRepository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ChatUserService {
+public class ChatCommandService {
 
+	private static final int MAX_OPEN_CHATS_PER_USER = 5;
 	private static final int MAX_PARTICIPANTS = 100;
 	private final UserRepository userRepository;
-	private final ChatUserRepository chatUserRepository;
 	private final ChatRoomRepository chatRepository;
+	private final ChatUserRepository chatUserRepository;
 	private final EntityManager em;
+	private final ApplicationEventPublisher eventPublisher;
+
+	@Transactional
+	public ChatResponseDTO.ChatInfo createChatRoom(Long userId, ChatRequestDTO.Create dto) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+		validateOpenChatLimit(userId);
+
+		// 3. Chat 엔티티 생성
+		Chat chat = dto.toEntity();
+		chatRepository.save(chat);
+
+		// 4. 생성자를 참여자로 저장 (MASTER 역할)
+		ChatUser chatUser = ChatUser.builder()
+			.chat(chat)
+			.user(user)
+			.role(ChatRole.MASTER)
+			.build();
+		chatUserRepository.save(chatUser);
+
+		// 5. 채팅방 ID 반환
+
+		ChatResponseDTO.ChatInfo chatInfo = ChatResponseDTO.ChatInfo.from(chat);
+		chatInfo.setCreatedAt(chat.getCreatedAt());
+		chatInfo.setMemberCount(1L);
+
+		return chatInfo;
+	}
+
+
+	public void validateOpenChatLimit(Long userId) {
+		int count = chatUserRepository.countByUserIdAndRole(userId, ChatRole.MASTER);
+
+		if (count >= MAX_OPEN_CHATS_PER_USER) {
+			throw new IllegalStateException("오픈 채팅방은 최대 5개까지만 생성할 수 있습니다. 추가로 생성을 원할 시에 기존의 방을 삭제해주세요");
+		}
+	}
+
 
 	@Transactional
 	@CacheEvict(value = "chatMembers", key = "#chatId")
 	public boolean joinUser(Long chatId, Long userId) {
 
 		Chat chat = chatRepository.findById(chatId).
-				orElseThrow(() -> new IllegalStateException("존재하지 않는 채팅방입니다."));
+			orElseThrow(() -> new IllegalStateException("존재하지 않는 채팅방입니다."));
 		User user = em.getReference(User.class, userId);
 
 		boolean existing = chatUserRepository.existsByChatIdAndUserId(chatId,userId );
@@ -57,6 +99,7 @@ public class ChatUserService {
 			.build();
 
 		chatUserRepository.save(newEntry);
+		eventPublisher.publishEvent(new UserJoinedChatEvent(this , chatId , user.getName()));
 		return true;
 	}
 
@@ -66,11 +109,14 @@ public class ChatUserService {
 		ChatUser chatUser = chatUserRepository.findByChatIdAndUserId(chatId, userId)
 			.orElseThrow(() -> new IllegalStateException("채팅방에 참여하고 있지 않습니다."));
 
+		String leaveUserName = chatUser.getUser().getName();
+
 		boolean isMaster = chatUser.getRole() == ChatRole.MASTER;
 
 		// 일반 유저 퇴장
 		if (!isMaster) {
 			chatUserRepository.delete(chatUser);
+			eventPublisher.publishEvent(new UserLeftChatEvent(this , chatId , leaveUserName));
 			return;
 		}
 		// 방장일 때
@@ -80,6 +126,7 @@ public class ChatUserService {
 		if (count <= 1) {
 			chatUserRepository.delete(chatUser);
 			chatRepository.deleteById(chatId);
+			eventPublisher.publishEvent(new UserLeftChatEvent(this , chatId , leaveUserName));
 			return;
 		}
 
@@ -100,23 +147,8 @@ public class ChatUserService {
 		}
 
 		chatUserRepository.delete(chatUser);
+		eventPublisher.publishEvent(new UserLeftChatEvent(this , chatId , leaveUserName));
 	}
 
-	@Cacheable(value = "chatMembers", key = "#chatId")
-	public List<ChatUserInfo> getMembers(Long chatId) {
-		List<ChatUser> members = chatUserRepository.findAllByChatId(chatId);
 
-		return members.stream()
-			.map(cu -> new ChatUserInfo(
-				cu.getUser().getId(),
-				cu.getUser().getName(),
-				cu.getRole()
-			))
-			.collect(Collectors.toList());
-	}
-
-	@Cacheable(value = "createdChats" , key = "#userId")
-	public List<ChatResponseDTO.ChatInfo> getCreateByMeChats(Long userId) {
-		return chatUserRepository.findChatsByUserIdAndRole(userId,ChatRole.MASTER);
-	}
 }
