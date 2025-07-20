@@ -1,4 +1,4 @@
-package com.kimje.chat.global.exception.exhandler;
+package com.kimje.chat.global.exception.exhandler.global;
 
 
 import com.kimje.chat.global.response.ApiResponse;

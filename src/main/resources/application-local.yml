@@ -1,19 +1,27 @@
 spring:
   # 🎯 로컬: 기본값 제공으로 편의성 증대
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/chattr}
+    url: ${DB_URL}
     username: ${DB_USERNAME:root}
     password: ${DB_PASS:password}
-
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: SELECT 1
+      connection-timeout: 30000 # 30초
+      initialization-fail-timeout: -1 # 연결 실패 시 앱을 종료하지 않음
+      validate-timeout: 3000
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: ${HIBERNATE_DDL_AUTO}
     show-sql: true  # 🎯 로컬: SQL 로그 출력
+    open-in-view: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
 
   # 🎯 로컬: 고정 Redis
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
 
   # 🎯 로컬: 테스트 메일 (MailHog 등)

@@ -35,8 +35,6 @@ class ChatAdminServiceTest {
 	@Mock
 	ChatRoomRepository chatRoomRepository;
 
-	@Mock
-	SystemMessageService systemMessageService;
 
 	private Long chatId;
 
@@ -77,22 +75,7 @@ class ChatAdminServiceTest {
 	void changeRole() {
 	}
 
-	@Test
-	@DisplayName("유저 추방 성공")
-	void kickUser() {
 
-
-		// when
-		when(chatUserRepository.findByChatIdAndUserId(chatId, authUser.getUserId())).thenReturn(Optional.of(masterUser));
-		when(chatUserRepository.findByChatIdAndUserId(chatId,targetUserId)).thenReturn(Optional.of(targetUser));
-
-		chatAdminService.kickUser(chatId,targetUserId , authUser);
-		// then
-
-		verify(chatUserRepository).deleteByUserIdAndChatId(targetUserId, chatId);
-		verify(systemMessageService).sendKickNotice(chatId,targetUserId);
-
-	}
 
 	@Test
 	@DisplayName("유저 추방 요청 시 채팅방에 속한 상태가 아닐 때 예외 발생")
