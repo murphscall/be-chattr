@@ -55,3 +55,6 @@ logging:
     com.kimje: debug
     org.springframework.security: debug
     org.hibernate.SQL: debug
+
+greeting:
+  message: this is prod application.yml
