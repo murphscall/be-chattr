@@ -1,5 +1,9 @@
 spring:
   # 🎯 운영: 모든 값 환경변수 (보안)
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASS}
 
   jpa:
     hibernate:
@@ -54,3 +58,7 @@ logging:
     com.zaxxer.hikari: DEBUG      # DB 연결 로그
     org.springframework.data.redis: DEBUG  # Redis 연결 로그
     root: info
+
+
+greeting:
+  message: this is prod application.yml
