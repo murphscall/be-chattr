@@ -1,13 +1,13 @@
 spring:
   # 🎯 운영: 모든 값 환경변수 (보안)
   datasource:
-    url: ${DB_URL}
+    url: ${DB_URL:jdbc:mysql://mysql:3306/chattr?useSSL=false&allowPublicKeyRetrieval=true}
     username: ${DB_USERNAME:root}
     password: ${DB_PASS}
 
   jpa:
     hibernate:
-      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}  # 🎯 운영: 기본값 validate
+      ddl-auto: validate  # 🎯 운영: 기본값 validate
     show-sql: false  # 🎯 운영: SQL 로그 끔
     database-platform: org.hibernate.dialect.MySQLDialect
   # 🎯 운영: Redis 환경변수
