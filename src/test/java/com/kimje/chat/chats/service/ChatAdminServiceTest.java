@@ -8,9 +8,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
+import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.ChatUser;
 import com.kimje.chat.chats.enums.ChatRole;
+import com.kimje.chat.chats.event.UserKickChatEvent;
 import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
 import com.kimje.chat.global.security.CustomUserDetails;
@@ -28,6 +31,9 @@ class ChatAdminServiceTest {
 
 	@InjectMocks
 	ChatAdminService chatAdminService;
+
+	@Mock
+	ApplicationEventPublisher eventPublisher;
 
 	@Mock
 	ChatUserRepository chatUserRepository;
@@ -48,25 +54,41 @@ class ChatAdminServiceTest {
 
 
 	@BeforeEach
-	public  void setUp(){
+	void setUp(){
 		// given
 		User user = User.builder()
 			.id(1L)
 			.email("wlsgnwkd22@gmail.com")
 			.role(UserRole.ROLE_USER)
-			.password("sy8583lk^^")
+			.name("jinhoo")
+			.password("a12345")
+			.build();
+
+		User user2 = User.builder()
+			.id(2L)
+			.email("kimjeanmia22@gmail.com")
+			.name("jaeuk")
+			.role(UserRole.ROLE_USER)
+			.password("a123456")
+			.build();
+
+		Chat chat = Chat.builder()
+			.id(1L)
 			.build();
 		CustomUserDetails customUserDetails = new CustomUserDetails(user);
 		authUser = (AuthUser) customUserDetails;
-		chatId = 1L;
 		targetUserId = 2L;
 
 		masterUser = ChatUser.builder()
 			.id(authUser.getUserId())
+			.chat(chat)
+			.user(user)
 			.role(ChatRole.MASTER)
 			.build();
 		targetUser = ChatUser.builder()
 			.id(2L)
+			.chat(chat)
+			.user(user2)
 			.role(ChatRole.MEMBER)
 			.build();
 	}
@@ -76,10 +98,23 @@ class ChatAdminServiceTest {
 	}
 
 
+	@Test
+	@DisplayName("유저 추방 성공 시 삭제 쿼리 호출 및 이벤트 호출")
+	void kickUser(){
+
+		when(chatUserRepository.findByChatIdAndUserId(chatId,authUser.getUserId())).thenReturn(Optional.of(masterUser));
+		when(chatUserRepository.findByChatIdAndUserId(chatId,targetUserId)).thenReturn(Optional.of(targetUser));
+
+		chatAdminService.kickUser(chatId,targetUserId,authUser);
+
+		verify(chatUserRepository).deleteByUserIdAndChatId(targetUserId,chatId);
+		verify(eventPublisher).publishEvent(any(UserKickChatEvent.class));
+
+	}
 
 	@Test
 	@DisplayName("유저 추방 요청 시 채팅방에 속한 상태가 아닐 때 예외 발생")
-	public void kickUser_IllegalException(){
+	void kickUser_IllegalException(){
 		when(chatUserRepository.
 			findByChatIdAndUserId(chatId,authUser.getUserId()))
 			.thenReturn(Optional.empty());
