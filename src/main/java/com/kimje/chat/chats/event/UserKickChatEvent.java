@@ -1,11 +1,7 @@
 package com.kimje.chat.chats.event;
 
 import org.springframework.context.ApplicationEvent;
-
 import lombok.Getter;
-
-import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
 
 @Getter
 public class UserKickChatEvent extends ApplicationEvent {

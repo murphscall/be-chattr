@@ -8,8 +8,6 @@ import com.kimje.chat.chats.exception.ChatBanAccessDeniedException;
 import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
-
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

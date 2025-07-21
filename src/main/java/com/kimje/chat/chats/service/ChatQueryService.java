@@ -59,8 +59,7 @@ public class ChatQueryService {
 			.collect(Collectors.toList());
 	}
 
-	@Cacheable(value = "createdChats" , key = "#"
-		+ "userId")
+	@Cacheable(value = "createdChats" , key = "#userId")
 	public List<ChatResponseDTO.ChatInfo> getCreateByMeChats(Long userId) {
 		return chatUserRepository.findChatsByUserIdAndRole(userId, ChatRole.MASTER);
 	}

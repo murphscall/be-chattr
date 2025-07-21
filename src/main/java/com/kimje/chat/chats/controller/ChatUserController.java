@@ -24,12 +24,10 @@ public class ChatUserController {
 
 	private final ChatCommandService chatCommandService;
 	private final ChatQueryService chatQueryService;
-	private final ApplicationEventPublisher eventPublisher;
 
-	public ChatUserController(ChatCommandService chatCommandService, ChatQueryService chatQueryService, ApplicationEventPublisher eventPublisher) {
+	public ChatUserController(ChatCommandService chatCommandService, ChatQueryService chatQueryService) {
 		this.chatCommandService = chatCommandService;
 		this.chatQueryService = chatQueryService;
-		this.eventPublisher = eventPublisher;
 	}
 
 	// 채팅방 입장
