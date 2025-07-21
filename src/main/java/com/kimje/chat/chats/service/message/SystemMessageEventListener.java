@@ -31,16 +31,16 @@ public class SystemMessageEventListener {
 	@TransactionalEventListener // 트랜잭션 커밋 후 실행 보장
 	public void handleUserKickEvent(UserKickChatEvent event) {
 		String content = event.getKickedUserName() + "님이 추방되었습니다.";
-		Message systemMessage = messageCommandService.saveSystemMessage(event.getChatId(), content, MessageType.NOTICE_JOIN);
+		Message systemMessage = messageCommandService.saveSystemMessage(event.getChatId(), content, MessageType.NOTICE_KICK);
 
 		String destination = "/sub/chats/" + event.getChatId();
 		messagingTemplate.convertAndSend(destination, MessageResponseDTO.of(systemMessage));
 	}
 
 	@TransactionalEventListener // 트랜잭션 커밋 후 실행 보장
-	public void handleUserJoinedEvent(UserLeftChatEvent event) {
+	public void handleUserLeftEvent(UserLeftChatEvent event) {
 		String content = event.getLeaverUserName() + "님이 퇴장했습니다.";
-		Message systemMessage = messageCommandService.saveSystemMessage(event.getChatId(), content, MessageType.NOTICE_JOIN);
+		Message systemMessage = messageCommandService.saveSystemMessage(event.getChatId(), content, MessageType.NOTICE_LEAVE);
 
 		String destination = "/sub/chats/" + event.getChatId();
 		messagingTemplate.convertAndSend(destination, MessageResponseDTO.of(systemMessage));

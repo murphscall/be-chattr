@@ -9,6 +9,7 @@ import com.kimje.chat.chats.dto.MessageRequestDTO;
 import com.kimje.chat.chats.dto.MessageResponseDTO;
 import com.kimje.chat.chats.entity.Message;
 import com.kimje.chat.chats.service.message.MessageCommandService;
+import com.kimje.chat.user.exception.UserNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +26,7 @@ public class StompController {
 
 		Long userId = (Long) headerAccessor.getSessionAttributes().get("userId");
 		if (userId == null) {
-			// 예외 처리 필요
-			return;
+			throw new IllegalStateException("User is not authentication");
 		}
 
 		// 2. 실제 메시지 저장 로직은 Command 서비스에 위임
