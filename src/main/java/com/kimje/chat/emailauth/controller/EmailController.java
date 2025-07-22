@@ -39,6 +39,8 @@ public class EmailController {
 		return ResponseEntity.ok().body(ApiResponse.success("인증 코드가 전송 되었습니다."));
 	}
 
+
+
 	@PostMapping("/api/email/verify")
 	public ResponseEntity<ApiResponse<?>> verifyEmail(@RequestBody EmailRequestDTO.Verify dto) throws
 		MessagingException {

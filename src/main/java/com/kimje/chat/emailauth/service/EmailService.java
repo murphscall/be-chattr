@@ -12,8 +12,11 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,39 +25,28 @@ public class EmailService {
 	private final RedisService redisService;
 	private final JavaMailSender mailSender;
 	private final EmailVerifyPassGenerator emailVerifyPassGenerator;
+	private final EmailSander emailSander;
 
-	public EmailService(JavaMailSender mailSender,
+	public EmailService(
 		EmailVerifyPassGenerator emailVerifyPassGenerator,
-		RedisService redisService) {
-		this.mailSender = mailSender;
+		RedisService redisService, JavaMailSender mailSender , EmailSander emailSander) {
+
 		this.emailVerifyPassGenerator = emailVerifyPassGenerator;
 		this.redisService = redisService;
+		this.mailSender = mailSender;
+		this.emailSander = emailSander;
 	}
 
 	public void sendEmail(EmailRequestDTO.Send dto) throws MessagingException {
-		log.info("===== 이메일 발송 시작: {} =====", dto.getEmail());
-		MimeMessage message = mailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message, true);
 		String code = emailVerifyPassGenerator.generateCode();
-
-		helper.setTo(dto.getEmail());
-		helper.setSubject("(실시간 채팅 Chattr) 이메일 인증 번호 발급");
-		String content =
-			"<html><head></head><body>"
-				+ "<h2>이메일 인증 번호</h2>"
-				+ "<p><strong>인증 번호 : </strong>"
-				+ code
-				+ "</p>"
-				+ "</body></html>";
-
-		helper.setText(content, true);
 		log.info("===== Redis 저장 시작 =====");
 		redisService.set(dto.getEmail(), code, 5, TimeUnit.MINUTES);
 		log.info("===== Redis 저장 완료 =====");
 
 		log.info("===== Gmail 발송 시작 =====");
-		mailSender.send(message);
-		log.info("===== Gmail 발송 완료 =====");
+
+		emailSander.send(dto.getEmail(), code);
+
 	}
 
 	public void verifyCode(EmailRequestDTO.Verify dto) throws MessagingException {

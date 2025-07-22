@@ -46,6 +46,7 @@
 
 ## 🛠️ 기술 스택
 
+
 | 구분       | 기술                                                                                     |
 |------------|------------------------------------------------------------------------------------------|
 | Backend    | Java 17, Spring Boot 3.4.5, Spring Security, Spring Data JPA, WebSocket, Lombok         |
@@ -93,6 +94,7 @@ end
 
 ### CI/CD 파이프라인
 `GitHub Actions` 를 사용하여 `main` 브랜치에 코드가 푸시될 때마다 자동으로 빌드, 테스트, 도커 이미지 생성 및 AWS EC2 서버에 배포하는 CI/CD 파이프라인을 구축했습니다. (deploy.yml)
+
 
 1. Push to `main`: 개발자가 main 브랜치로 코드를 푸시합니다.
 
@@ -213,3 +215,44 @@ end
   DB_URL = ...//localhost:3306/...
   REDIS_HOST=localhost
 ```
+<br>
+
+## 🤔 프로젝트를 통해 배운 점 및 트러블 슈팅
+### 1. 일반 로그인과 소셜 로그인 통합 관리
+
+**문제:**
+- Petory 프로젝트에서는 일반 회원과 소셜 회원의 테이블이 분리되어 있어 관리가 비효율적이었습니다.
+   
+**해결:** 
+- User 테이블은 공통 정보를 가지게 하고, UserLogin 테이블을 추가하여 로그인 방식(NORMAL, KAKAO, GOOGLE)과 고유 ID를 저장하는 방식으로 구조를 개선했습니다. 이를 통해 어떤 방식으로 로그인하든 동일한 User 엔티티로 관리할 수 있게 되어 코드의 중복을 줄이고 확장성을 높였습니다. (User.java, UserLogin.java, CustomOAuth2UserService.java)
+
+---
+### 2. Redis를 활용한 성능 개선
+
+**문제:** 
+- 사용자 정보 조회나 채팅방 멤버 목록 조회 같이 반복적으로 호출되지만 데이터 변경이 잦지 않은 API에서 불필요한 DB 조회가 발생했습니다.
+
+**해결:**
+- @Cacheable 어노테이션을 사용하여 DB 조회 결과를 Redis에 캐싱했습니다. (UserService.java, ChatQueryService.java) 또한, 이메일 인증 번호나 Refresh Token 같이 만료 시간이 필요한 데이터를 Redis에 저장하여 효율적으로 관리했습니다. (EmailService.java, TokenService.java)
+
+### 3. 느린 이메일 전송 시간
+
+**문제**
+
+- 기존에 동기적으로 구현되어진 이메일 전송 로직의 응답시간이 3~4000ms 으로 너무 오래 걸렸습니다.
+
+**해결**
+
+- 기존에 이메일 로직은 레디스에 인증번호 임시 저장 + 이메일 전송 까지 합쳐진 상태였습니다.
+  해당 기능을 따로 분리하고 외부 서비스인 이메일 전송 부분은 비동기적으로 처리하여  응답 시간을 개선 했습니다.
+
+```bash
+    // 개선 전
+    [API 요청] POST /api/email/send | 회원=anonymousUser
+    [API 요청 완료] 응답 = 200 응답 시간 = 3913ms
+
+    // 개선 후
+    [API 요청] POST /api/email/send | 회원=anonymousUser
+    [API 요청 완료] 응답 = 200 응답 시간 = 2ms
+```
+
