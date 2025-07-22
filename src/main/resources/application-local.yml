@@ -21,7 +21,7 @@ spring:
   # 🎯 로컬: 고정 Redis
   data:
     redis:
-      host: redis
+      host: ${REDIS_HOST}
       port: 6379
 
   # 🎯 로컬: 테스트 메일 (MailHog 등)

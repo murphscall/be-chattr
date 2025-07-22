@@ -5,11 +5,8 @@ import com.kimje.chat.chats.service.ChatCommandService;
 import com.kimje.chat.chats.service.ChatQueryService;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
-
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,8 +15,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name="채팅 참여 API")
+@RestController
 public class ChatUserController {
 
 	private final ChatCommandService chatCommandService;

@@ -1,218 +1,115 @@
-## 목차
-- [들어가며](#들어가며)
-    - [프로젝트 소개](#1-프로젝트-소개)
-    - [프로젝트 기능](#2-프로젝트-기능)
-    - [사용 기술](#3-사용-기술)
-        - [백엔드](#3-1-백엔드)
-        - [프론트엔드](#3-2-프론트엔드)
+# 💬 실시간 채팅 애플리케이션 Chattrd
+## 📖 프로젝트 소개
 
-- [구조 및 설계](#구조-및-설계)
-    - [패키지 구조](#1-패키지-구조)
-    - [DB 설계](#2-db-설계)
-    - [API 설계](#3-api-설계)
+**Chattr**는 사용자들이 실시간으로 소통할 수 있는 웹 기반 채팅 애플리케이션입니다. <br>
+**WebSocket** 을 활용한 실시간 메시지 전송, **Spring Security** 와 **JWT** 를 통한 안전한 인증/인가,<br>
+그리고 **OAuth 2.0** 을 이용한 소셜 로그인 기능을 구현하여 사용자의 편의성과 보안을 모두 고려했습니다.
 
-- [개발 내용](#개발-내용)
+이 프로젝트의 핵심 목표는 단순히 채팅 기능을 구현하는 것을 넘어, 다음과 같은 기술적 경험을 쌓는 것이었습니다.
 
-- [마치며](#마치며)
-    - [프로젝트 보완사항](#1-프로젝트-보완사항)
-    - [후기](#2-후기)
+- `WebSocket`과 `STOMP`를 활용하여 실시간 양방향 통신 아키텍처를 직접 설계하고 구현하고자 했습니다.
 
-## 들어가며
-### 1. 프로젝트 소개
+- `Spring Security`, `JWT`, `OAuth 2.0`을 적용하여 보안과 사용자 인증/인가 프로세스에 대한 깊은 이해를 얻고자 했습니다
 
-실시간 채팅 기능은 웹 개발의 기본 소양 중 하나로, 이를 직접 구현해보며 웹소켓, 인증, 메시지 처리 등의 흐름을 익히고자 현재 진행중인 프로젝트 입니다.
-또한 이전 Petory 프로젝트를 통해서 아쉬웠던 일반회원과 소셜회원의 통합관리를 보완하고 사용하지 못했던 Redis의 캐싱 기술을 시도하려고 합니다.
+- **`소셜 회원`** 과 **`일반 회원`** 의 통합 관리를 설계하고 처리하는 방법을 경험했습니다.
+
+- `Redis`를 활용한 캐싱 전략(@Cacheable)과 데이터 관리(Refresh Token, 이메일 인증 코드)를 통해 애플리케이션의 성능을 개선하고 DB 부하를 줄이고 응답 속도를 개선하는 경험을 했습니다.
+
+- 관심사 분리 원칙에 따라 **계층형 아키텍처(Controller, Service, Repository)** 를 적용하고, 확장성과 유지보수성을 고려한 프로젝트 구조를 고민했습니다.
 
 
+## ✨ 주요 기능
+- 실시간 채팅: WebSocket을 통해 여러 사용자가 한 채팅방에서 실시간으로 메시지를 주고받을 수 있습니다. (StompController.java, WebSocketConfig.java)
 
-### 2. 프로젝트 기능
+- 사용자 인증:
 
-프로젝트의 주요 기능은 다음과 같습니다.
-- **채팅방 -** 채팅방 CRUD , 권한 부여 및 위임
-- **사용자 -** Security 회원가입 및 로그인, OAuth 2.0 구글, 네이버 로그인, 회원정보 수정, 회원가입시 유효성 검사 및 중복 검사
-- **메시지 -** 메시지 CRUD , 대상 태그 기능  
+    - 일반 로그인: Spring Security와 JWT를 사용하여 안전한 이메일/비밀번호 기반 로그인을 제공합니다. (AuthService.java, JwtTokenProvider.java)
 
-### 3. 사용 기술
+    - 소셜 로그인: OAuth 2.0을 통해 Google, Kakao 계정으로 간편하게 로그인할 수 있습니다. (CustomOAuth2UserService.java)
 
-#### 3-1 백엔드
+- 채팅방 관리:
 
-##### 주요 프레임워크 / 라이브러리
-- Java 17
-- SpringBoot 3.4.5
-- JPA(Spring Data JPA)
-- Spring Security
-- OAuth 2.0
-- Redis 
+    - 채팅방 생성, 참여, 나가기 등 기본적인 채팅방 라이프사이클을 관리합니다. (ChatCommandService.java)
+    - 방장(MASTER), 매니저(MANAGER), 멤버(MEMBER) 역할을 부여하고, 방장은 다른 유저의 역할을 변경하거나 유저를 추방할 수 있습니다. (ChatAdminService.java)
 
-##### Build Tool
-- Gradle 8.10.2
+- 메시지 기능:
 
-##### DataBase
-- MySQL 8.0.4
+    - 메시지 '좋아요' 기능을 통해 사용자의 상호작용을 유도합니다. (MessageCommandService.java)
 
-## 구조 및 설계
+    - 채팅방 입장/퇴장/추방 시 시스템 알림 메시지를 전송합니다. (SystemMessageEventListener.java)
 
-### 1. 패키지 구조
-<details>
-<summary>📁 패키지 구조 보기</summary>
+- 보안 및 검증:
 
-```
-└─📁 com
-    └─📁 kimje
-        └─📁 chat
-            │  📄 BackendApplication.java
-            │
-            ├─📁 admin
-            │  ├─📁 controller
-            │  │      📄 AdminController.java
-            │  │
-            │  ├─📁 repository
-            │  └─📁 service
-            │
-            ├─📁 auth
-            │  ├─📁 controller
-            │  │      📄 AuthController.java
-            │  │
-            │  ├─📁 dto
-            │  │      📄 LoginDTO.java
-            │  │
-            │  ├─📁 repository
-            │  └─📁 service
-            │          📄 AuthService.java
-            │          📄 TokenService.java
-            │
-            ├─📁 chats
-            │  ├─📁 controller
-            │  │      📄 ChatAdminController.java
-            │  │      📄 ChatController.java
-            │  │      📄 ChatMessageController.java
-            │  │      📄 ChatUserController.java
-            │  │      📄 MessageControler.java
-            │  │
-            │  ├─📁 dto
-            │  │      📄 ChatRequestDTO.java
-            │  │      📄 ChatResponseDTO.java
-            │  │      📄 MessageRequestDTO.java
-            │  │      📄 MessageResponseDTO.java
-            │  │
-            │  ├─📁 entity
-            │  │      📄 Chat.java
-            │  │      📄 ChatUser.java
-            │  │      📄 Message.java
-            │  │      📄 MessageLike.java
-            │  │      📄 MessageMention.java
-            │  │      📄 Notification.java
-            │  │
-            │  ├─📁 enums
-            │  │      📄 ChatRole.java
-            │  │      📄 ChatTopic.java
-            │  │      📄 ChatType.java
-            │  │      📄 MessageType.java
-            │  │      📄 NotificationType.java
-            │  │
-            │  ├─📁 repository
-            │  │      📄 ChatRepository.java
-            │  │      📄 ChatUserRepository.java
-            │  │      📄 MessageRepository.java
-            │  │
-            │  └─📁 service
-            │          📄 ChatAdminService.java
-            │          📄 ChatService.java
-            │          📄 ChatUserService.java
-            │
-            ├─📁 emailauth
-            │  ├─📁 controller
-            │  │      📄 EmailController.java
-            │  │
-            │  ├─📁 dto
-            │  │      📄 EmailRequestDTO.java
-            │  │
-            │  ├─📁 entity
-            │  ├─📁 repository
-            │  └─📁 service
-            │          📄 EmailService.java
-            │
-            ├─📁 global
-            │  ├─📁 config
-            │  │      📄 OpenApiConfig.java
-            │  │      📄 RedisConfig.java
-            │  │      📄 SecurityConfig.java
-            │  │      📄 WebSocketConfig.java
-            │  │
-            │  ├─📁 exception
-            │  │  ├─📁 customexception
-            │  │  │      📄 EmailNotVerificationException.java
-            │  │  │      📄 FieldErrorException.java
-            │  │  │      📄 InvalidVerificationCodeException.java
-            │  │  │      📄 JwtInvalidTokenException.java
-            │  │  │      📄 JwtTokenExpiredException.java
-            │  │  │      📄 VerificationCodeExpiredException.java
-            │  │  │
-            │  │  └─📁 exhandler
-            │  │          📄 GlobalExceptionHandler.java
-            │  │
-            │  ├─📁 redis
-            │  │      📄 RedisService.java
-            │  │
-            │  ├─📁 response
-            │  │      📄 ApiResponse.java
-            │  │
-            │  ├─📁 security
-            │  │      📄 CustomUserDetails.java
-            │  │      📄 CustomUserDetailsService.java
-            │  │
-            │  │  ├─📁 jwt
-            │  │  │      📄 JwtAuthenticationEntryPoint.java
-            │  │  │      📄 JwtAuthenticationFilter.java
-            │  │  │      📄 JwtHandshakeInterceptor.java
-            │  │  │      📄 JwtTokenProvider.java
-            │  │  │
-            │  │  └─📁 OAuth2
-            │  │          📄 AuthUser.java
-            │  │          📄 CustomOAuth2User.java
-            │  │          📄 CustomOAuth2UserService.java
-            │  │          📄 GoogleResponse.java
-            │  │          📄 KakaoResponse.java
-            │  │          📄 OAuth2LoginSuccessHandler.java
-            │  │          📄 OAuth2Response.java
-            │  │
-            │  └─📁 util
-            │          📄 CookieUtil.java
-            │          📄 EmailVerifyPassGenerator.java
-            │
-            └─📁 user
-                ├─📁 controller
-                │      📄 UserController.java
-                │
-                ├─📁 dto
-                │      📄 UserRequestDTO.java
-                │      📄 UserResponseDTO.java
-                │
-                ├─📁 entity
-                │      📄 User.java
-                │      📄 UserLogin.java
-                │
-                ├─📁 enums
-                │      📄 UserRole.java
-                │
-                ├─📁 repository
-                │      📄 UserLoginRepository.java
-                │      📄 UserRepository.java
-                │
-                └─📁 service
-                        📄 UserService.java
+    - 회원가입 시 이메일 인증을 통해 유효한 사용자인지 확인합니다. (EmailService.java)
 
+    - 요청 데이터에 대한 유효성 검사를 통해 API 안정성을 확보합니다. (UserRequestDTO.java, ChatRequestDTO.java)
+
+## 🛠️ 기술 스택
+
+| 구분       | 기술                                                                                     |
+|------------|------------------------------------------------------------------------------------------|
+| Backend    | Java 17, Spring Boot 3.4.5, Spring Security, Spring Data JPA, WebSocket, Lombok         |
+| Database   | MySQL 8.0                                                                               |
+| Cache      | Redis (사용자 정보, 채팅방 멤버 캐싱 및 이메일 인증 코드 저장)<br>*(RedisService.java, RedisConfig.java)* |
+| CI/CD      | GitHub Actions, Docker, Docker Compose, AWS EC2                                        |
+| Build Tool | Gradle                                                                                  |
+| API Docs   | SpringDoc OpenAPI *(OpenApiConfig.java)*                                                |
+
+※ build.gradle 및 application.yml 파일에서 상세 의존성을 확인하실 수 있습니다.
+
+## 🏛️ 아키텍처 및 설계
+
+### 전체 시스템 아키텍처
+
+```mermaid
+graph LR
+subgraph "① 개발 & 코드 관리"
+Dev["👨‍💻 개발자"] -->|Code Push| Repo(🐙 GitHub Repository)
+end
+
+subgraph "② CI/CD 자동화"
+Repo -->|Trigger| Actions(⚙️ GitHub Actions <br> 1. 빌드 & 테스트 <br> 2. Docker 이미지 생성)
+end
+
+subgraph "③ 이미지 저장소"
+Actions -->|Image Push| DockerHub(🐳 Docker Hub)
+end
+
+subgraph "④ 배포 환경 (AWS)"
+Actions -->|SSH 배포 명령| EC2(☁️ EC2 서버)
+EC2 -->|docker-compose pull & up| DockerHub
+
+subgraph EC2 내 Docker 환경
+Nginx(🌐 Nginx) --> App(🚀 Spring App)
+App --> DB(🗄️ MySQL)
+App --> Cache(⚡ Redis)
+end
+end
+
+subgraph "⑤ 사용자"
+User(👨‍👩‍👧‍👦 사용자) -->|HTTPS 요청| Nginx
+end
 ```
 
+### CI/CD 파이프라인
+`GitHub Actions` 를 사용하여 `main` 브랜치에 코드가 푸시될 때마다 자동으로 빌드, 테스트, 도커 이미지 생성 및 AWS EC2 서버에 배포하는 CI/CD 파이프라인을 구축했습니다. (deploy.yml)
 
-</details>
-<br/>    
+1. Push to `main`: 개발자가 main 브랜치로 코드를 푸시합니다.
 
-### 2. DB 설계
-#### DB 전체 구조
+2. GitHub Actions Trigger: 워크플로우가 자동으로 실행됩니다.
+
+3. Build & Test: `./gradlew build` 명령어로 애플리케이션을 빌드하고 테스트를 수행합니다.
+
+4. Docker Build & Push: `Dockerfile`을 사용하여 애플리케이션을 도커 이미지로 빌드하고, Docker Hub에 푸시합니다.
+
+5. Deploy to EC2: `ssh-action`을 사용하여 EC2 서버에 접속한 후, docker-compose를 통해 최신 이미지를 받아 애플리케이션을 실행합니다.
+
+
+## 2. DB 설계
+### DB 전체 구조
 <img width="912" alt="Image" src="https://github.com/user-attachments/assets/914b7f40-736d-45d4-a389-5ea6b3b76bb8" />
 
-#### 회원
+### 회원
 <img width="894" alt="Image" src="https://github.com/user-attachments/assets/8890feda-a173-449f-91ca-f9ff8698b752" />
 
 ### 메시지
@@ -223,114 +120,96 @@
 
 
 
-### 3. API 설계
+## 3. API 목록
+
+※ 자세한 API 명세는 /swaager-ui/index.html 을 통해 확인하실 수 있습니다.
+
+### 사용자 및 인증 API (UserController , AuthController , EmailController)
+| HTTP Method | URI                          | 설명                          |
+|-------------|------------------------------|-------------------------------|
+| POST        | /api/users                   | 신규 회원 가입                |
+| DELETE      | /api/users                   | 회원 탈퇴                    |
+| GET         | /api/users/me                | 내 정보 조회                 |
+| POST        | /api/auth/login              | 이메일/비밀번호 로그인       |
+| POST        | /api/auth/logout             | 로그아웃                    |
+| POST        | /api/auth/refresh            | Access Token 재발급          |
+| GET         | /api/auth/authentication     | 현재 인증 상태 확인          |
+| POST        | /api/email/send              | 회원가입 이메일 인증코드 발송|
+| POST        | /api/email/verify            | 이메일 인증코드 확인         |
+
+### 채팅방 API (RoomController)
+| HTTP Method | URI                        | 설명                              |
+|-------------|----------------------------|-----------------------------------|
+| POST        | /api/chats                 | 신규 채팅방 생성                 |
+| GET         | /api/chats/list            | 전체 채팅방 목록 조회 (페이징)   |
+| GET         | /api/chats/hot             | 인기 채팅방 목록 조회 (페이징)   |
+| GET         | /api/chats/me              | 내가 참여중인 채팅방 목록 조회 (페이징) |
+| GET         | /api/chats/my              | 내가 생성한 채팅방 목록 조회     |
+| GET         | /api/chats/allList         | 모든 종류의 채팅방 목록을 한번에 조회 |
 
 
-### 4.사용자 인증 발급 흐름도
-```mermaid
-sequenceDiagram
-    autonumber
-    participant User
-    participant Frontend
-    participant Backend
-    participant Redis
+### 채팅 참여 API (ChatUserController)
+| HTTP Method | URI                          | 설명                  |
+|-------------|------------------------------|-----------------------|
+| POST        | /api/chats/{chatId}/join     | 채팅방 참여           |
+| POST        | /api/chats/{chatId}/exit     | 채팅방 나가기         |
+| GET         | /api/chats/{chatId}/members  | 채팅방 멤버 목록 조회 |
 
-    %% ✅ 초기 로그인 시
-    rect rgb(216, 245, 216)
-    note over User, Redis: ✅ 초기 로그인 시
-    User->>Frontend: 로그인 요청 (email, password)
-    Frontend->>Backend: POST /api/auth/login
-    Backend->>Redis: RefreshToken(UUID) 저장
-    Backend-->>Frontend: AccessToken(JWT), RefreshToken(UUID)
-    Frontend-->>User: 쿠키 저장 (HTTP-only)
-    end
 
-    %% ✅ 보호된 API 요청 시
-    rect rgb(224, 234, 255)
-    note over User, Redis: ✅ 보호된 API 요청 시
-    User->>Frontend: API 요청 (AccessToken 포함)
-    Frontend->>Backend: GET /api/protected
-    alt AccessToken 유효
-        Backend-->>Frontend: 정상 응답
-    else AccessToken 만료
-        Backend-->>Frontend: 401 Unauthorized
+### 채팅 메시지 API (MessageController)
+| HTTP Method | URI                          | 설명                       |
+|-------------|------------------------------|----------------------------|
+| GET         | /api/chats/{chatId}/message  | 채팅방의 메시지 목록 조회  |
+| POST        | /api/chats/{chatId}/msg/{msgId}/likes | 메시지 '좋아요' 토글   |
 
-        %% ✅ 리프레시 토큰으로 재발급
-        note over Frontend, Redis: ✅ 리프레시 토큰으로 재발급 요청
-        Frontend->>Backend: POST /api/auth/refresh (with RefreshToken 쿠키)
-        Backend->>Redis: RefreshToken 조회 및 검증
-        alt RefreshToken 유효
-            Redis-->>Backend: OK
-            Backend->>Redis: 기존 RefreshToken 삭제
-            Backend->>Redis: 새로운 RefreshToken 저장
-            Backend-->>Frontend: 새 AccessToken + 새 RefreshToken
-        else RefreshToken 없음 또는 만료
-            Backend-->>Frontend: 401 Unauthorized
-        end
-    end
-    end
 
-    %% ✅ 로그아웃 시
-    rect rgb(255, 240, 214)
-    note over User, Redis: ✅ 로그아웃 시
-    User->>Frontend: 로그아웃 요청
-    Frontend->>Backend: POST /api/auth/logout
-    Backend->>Redis: RefreshToken 삭제
-    Backend-->>Frontend: 쿠키 삭제 응답
-    end
+### 채팅 관리 API (ChatAdminController)
+| HTTP Method | URI                                    | 설명               |
+|-------------|----------------------------------------|--------------------|
+| POST        | /api/chats/{chatId}/users/{targetId}/kick | 채팅방 멤버 추방  |
+| POST        | /api/chats/{chatId}/users/{targetId}/role | 채팅방 멤버 역할 변경 |
+
+
+---
+
+## 🚀 도커 환경에서 시작하기
+
+1. 프로젝트 클론
+
+```bash
+  git clone https://github.com/murphscall/be-chattr.git
+  cd be-chattr
 ```
 
-### 5. 시큐리티 구조 및 JWT 처리 흐름도
-```mermaid
-sequenceDiagram
-autonumber
-participant 사용자
-participant UsernamePasswordAuthenticationFilter
-participant AuthenticationManager
-participant CustomUserDetailsService
-participant JwtTokenProvider
-participant DispatcherServlet
-participant OAuth2LoginAuthenticationFilter
-participant CustomOAuth2UserService
-participant JwtAuthenticationFilter
-participant @RestController
-participant UserService
-participant UserRepository
-participant Database
+2. 환경변수 파일 생성
 
-    %% Form 로그인
-    사용자->>UsernamePasswordAuthenticationFilter: POST /login (username, password)
-    UsernamePasswordAuthenticationFilter->>AuthenticationManager: authenticate()
-    AuthenticationManager->>CustomUserDetailsService: loadUserByUsername()
-    CustomUserDetailsService-->>AuthenticationManager: CustomUserDetails
-    AuthenticationManager-->>UsernamePasswordAuthenticationFilter: 인증 객체 반환
-    UsernamePasswordAuthenticationFilter->>JwtTokenProvider: createToken()
-    JwtTokenProvider-->>UsernamePasswordAuthenticationFilter: JWT 발급
-    UsernamePasswordAuthenticationFilter-->>사용자: JWT 반환
+- yaml 에서 필요로 하는 환경변수 파일을 만들고 환경변수를 정의합니다.
+- 도커 환경의 경우 mysql 과 redis 경로를 서비스 이름으로 설정합니다.
 
-    %% OAuth2 로그인
-    사용자->>DispatcherServlet: GET /oauth2/authorization/kakao
-    DispatcherServlet->>OAuth2LoginAuthenticationFilter: 인증 처리
-    OAuth2LoginAuthenticationFilter->>CustomOAuth2UserService: loadUser()
-    CustomOAuth2UserService->>UserRepository: findByEmail()
-    UserRepository-->>CustomOAuth2UserService: Users
-    CustomOAuth2UserService-->>OAuth2LoginAuthenticationFilter: CustomOAuth2User
-    OAuth2LoginAuthenticationFilter->>JwtTokenProvider: createToken()
-    JwtTokenProvider-->>OAuth2LoginAuthenticationFilter: JWT 발급
-    OAuth2LoginAuthenticationFilter-->>사용자: JWT + 리다이렉트
+```bash
+  # .env
+  DB_PASS=your_mysql_password
+  # ... 기타 JWT, OAuth 관련 환경 변수들
+```
 
-    %% 토큰으로 사용자 정보 요청
-    사용자->>JwtAuthenticationFilter: GET /api/users/me (Authorization: Bearer ...)
-    JwtAuthenticationFilter->>JwtTokenProvider: validateToken()
-    JwtTokenProvider-->>JwtAuthenticationFilter: true
-    JwtAuthenticationFilter->>JwtTokenProvider: getAuthentication()
-    JwtTokenProvider->>UserRepository: findByEmail()
-    UserRepository-->>JwtTokenProvider: Users
-    JwtTokenProvider-->>JwtAuthenticationFilter: Authentication(CustomUserDetails)
-    JwtAuthenticationFilter-->>@RestController: SecurityContext 설정 완료 후 요청 전달
-    @RestController->>UserService: getUserInfo()
-    UserService->>UserRepository: findBy(id)
-    UserRepository-->>UserService: Users
-    UserService-->>@RestController: UserResponseDTO
-    @RestController-->>사용자: JSON 응답 반환
+3. Docker Compose 실행
+
+```bash
+  docker-coompose up --build
+```
+
+## 🚀 로컬 환경에서 시작하기
+
+1. 프로젝트 클론
+
+```bash
+  git clone https://github.com/murphscall/be-chattr.git
+  cd be-chattr
+```
+
+2. 환경 변수 설정
+- redis 와 mysql 주소를 localhost 로 환경변수 설정합니다.
+```env
+  DB_URL = ...//localhost:3306/...
+  REDIS_HOST=localhost
 ```
