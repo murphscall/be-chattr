@@ -10,6 +10,7 @@ import com.kimje.chat.global.response.PageResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.global.util.FieldErrorsHandlerUtil;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="채팅방 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor

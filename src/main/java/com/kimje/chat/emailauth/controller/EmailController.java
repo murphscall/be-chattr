@@ -8,6 +8,7 @@ import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.emailauth.dto.EmailRequestDTO;
 import com.kimje.chat.emailauth.service.EmailService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="사용자 및 인증 API")
 @RestController
 public class EmailController {
 

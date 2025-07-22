@@ -15,8 +15,10 @@ import com.kimje.chat.chats.service.message.MessageQueryService;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
+@Tag(name="채팅 메시지 API")
 @RestController
 @Slf4j
 public class MessageController {

@@ -4,18 +4,17 @@ import com.kimje.chat.auth.dto.LoginDTO;
 import com.kimje.chat.auth.service.AuthService;
 import com.kimje.chat.auth.service.TokenService;
 import com.kimje.chat.global.exception.RefreshTokenNotFoundException;
-import com.kimje.chat.user.exception.UserNotFoundException;
 import com.kimje.chat.global.redis.RedisService;
 import com.kimje.chat.global.response.ApiResponse;
 import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.global.security.jwt.JwtTokenProvider;
 import com.kimje.chat.global.util.CookieUtil;
 import com.kimje.chat.user.dto.UserResponseDTO;
-import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.enums.UserRole;
 import com.kimje.chat.user.repository.UserRepository;
 import com.kimje.chat.user.service.UserService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +24,13 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="사용자 및 인증 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
@@ -39,18 +38,14 @@ public class AuthController {
 
 	private final AuthService authService;
 	private final TokenService tokenService;
-	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisService redisService;
-	private final UserRepository userRepository;
 	private final UserService userService;
 
-	public AuthController(AuthService authService, TokenService tokenService, JwtTokenProvider jwtTokenProvider,
-		RedisService redisService, UserRepository userRepository, UserService userService) {
+	public AuthController(AuthService authService, TokenService tokenService,
+		RedisService redisService,  UserService userService) {
 		this.authService = authService;
 		this.tokenService = tokenService;
-		this.jwtTokenProvider = jwtTokenProvider;
 		this.redisService = redisService;
-		this.userRepository = userRepository;
 		this.userService = userService;
 	}
 

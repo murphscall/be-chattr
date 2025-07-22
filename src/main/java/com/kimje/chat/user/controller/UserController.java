@@ -6,23 +6,22 @@ import com.kimje.chat.global.util.FieldErrorsHandlerUtil;
 import com.kimje.chat.user.dto.UserRequestDTO;
 import com.kimje.chat.user.dto.UserResponseDTO;
 import com.kimje.chat.user.service.UserService;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "USER API", description = "회원 관련 API")
+
 @RestController
 @RequiredArgsConstructor
-public class UserController {
+public class
+UserController implements UserApi {
 	private final FieldErrorsHandlerUtil fieldErrorsHandlerUtil;
 	private final UserService userService;
+
 
 	@PostMapping("/api/users")
 	public ResponseEntity<?> create(@Valid @RequestBody UserRequestDTO.Create dto, BindingResult result) {

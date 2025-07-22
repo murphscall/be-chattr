@@ -9,10 +9,10 @@ import com.kimje.chat.chats.dto.MessageRequestDTO;
 import com.kimje.chat.chats.dto.MessageResponseDTO;
 import com.kimje.chat.chats.entity.Message;
 import com.kimje.chat.chats.service.message.MessageCommandService;
-import com.kimje.chat.user.exception.UserNotFoundException;
-
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 
+@Hidden
 @Controller
 @RequiredArgsConstructor
 public class StompController {
