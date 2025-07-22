@@ -46,6 +46,7 @@
 
 ## 🛠️ 기술 스택
 
+
 | 구분       | 기술                                                                                     |
 |------------|------------------------------------------------------------------------------------------|
 | Backend    | Java 17, Spring Boot 3.4.5, Spring Security, Spring Data JPA, WebSocket, Lombok         |
@@ -93,6 +94,7 @@ end
 
 ### CI/CD 파이프라인
 `GitHub Actions` 를 사용하여 `main` 브랜치에 코드가 푸시될 때마다 자동으로 빌드, 테스트, 도커 이미지 생성 및 AWS EC2 서버에 배포하는 CI/CD 파이프라인을 구축했습니다. (deploy.yml)
+
 
 1. Push to `main`: 개발자가 main 브랜치로 코드를 푸시합니다.
 
