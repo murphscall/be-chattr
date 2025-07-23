@@ -1,13 +1,9 @@
 package com.kimje.chat.chats.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.enums.ChatRole;
 import com.kimje.chat.chats.enums.ChatTopic;
-import com.kimje.chat.user.dto.UserResponseDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

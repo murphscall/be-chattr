@@ -1,13 +1,8 @@
 package com.kimje.chat.chats.service.message;
-
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import com.kimje.chat.chats.dto.MessageRequestDTO;
-import com.kimje.chat.chats.dto.MessageResponseDTO;
+import org.springframework.transaction.annotation.Transactional;
 import com.kimje.chat.chats.entity.Chat;
 import com.kimje.chat.chats.entity.Message;
 import com.kimje.chat.chats.entity.MessageLike;
@@ -16,18 +11,15 @@ import com.kimje.chat.chats.repository.ChatRoomRepository;
 import com.kimje.chat.chats.repository.ChatUserRepository;
 import com.kimje.chat.chats.repository.MessageLikeRepository;
 import com.kimje.chat.chats.repository.MessageRepository;
-import com.kimje.chat.global.security.OAuth2.AuthUser;
 import com.kimje.chat.user.entity.User;
 import com.kimje.chat.user.repository.UserRepository;
-
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MessageCommandService {
 
 	private final MessageRepository messageRepository;

@@ -1,7 +1,6 @@
 package com.kimje.chat.chats.service;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 import com.kimje.chat.chats.dto.ChatRequestDTO;
 import com.kimje.chat.chats.dto.ChatResponseDTO;
@@ -19,7 +18,6 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

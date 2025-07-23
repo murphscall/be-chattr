@@ -37,7 +37,8 @@ public interface ChatUserRepository extends JpaRepository<ChatUser, Long> {
 	int countByChatId(Long chatId);
 
 	// chatId를 가진 채팅방 참여자 목록을 모두 조회하는 쿼리
-	List<ChatUser> findAllByChatId(Long chatId);
+	@Query("SELECT cu FROM ChatUser cu JOIN FETCH cu.user WHERE cu.chat.id = :chatId")
+	List<ChatUser> findAllWithUserByChatId(@Param("chatId") Long chatId);
 
 	Optional<ChatUser> findFirstByChatIdAndRole(Long chatId, ChatRole chatRole);
 

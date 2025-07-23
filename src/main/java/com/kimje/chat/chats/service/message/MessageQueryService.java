@@ -1,7 +1,6 @@
 package com.kimje.chat.chats.service.message;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MessageQueryService {
 
 	private final ChatUserRepository chatUserRepository;
@@ -33,7 +33,7 @@ public class MessageQueryService {
 			.orElseThrow(() -> new IllegalStateException("채팅방에 참여한 이력이 없습니다."));
 
 		LocalDateTime joinedAt = chatUser.getJoinedAt();
-		List<Message> messages = messageRepository.findByChatId_IdAndCreatedAtAfter(chatId, joinedAt);
+		List<Message> messages = messageRepository.findMessagesWithLikes(chatId, joinedAt);
 
 		Set<Long> likedMessageIds = messageLikeRepository.findLikedMessageIdsByUserIdAndChatIdAfter(
 				authUser.getUserId(), chatId, joinedAt

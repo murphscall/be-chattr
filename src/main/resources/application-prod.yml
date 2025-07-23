@@ -1,13 +1,18 @@
 spring:
   # 🎯 운영: 모든 값 환경변수 (보안)
   datasource:
-    url: ${DB_URL:jdbc:mysql://mysql:3306/chattr?useSSL=false&allowPublicKeyRetrieval=true}
+    url: ${DB_URL}
     username: ${DB_USERNAME:root}
     password: ${DB_PASS}
-
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: SELECT 1
+      connection-timeout: 30000 # 30초
+      initialization-fail-timeout: -1 # 연결 실패 시 앱을 종료하지 않음
+      validate-timeout: 3000
   jpa:
     hibernate:
-      ddl-auto: validate  # 🎯 운영: 기본값 validate
+      ddl-auto: validate # 🎯 운영: 기본값 validate
     show-sql: false  # 🎯 운영: SQL 로그 끔
     database-platform: org.hibernate.dialect.MySQLDialect
   # 🎯 운영: Redis 환경변수
@@ -59,6 +64,3 @@ logging:
     org.springframework.data.redis: DEBUG  # Redis 연결 로그
     root: info
 
-
-greeting:
-  message: this is prod application.yml
