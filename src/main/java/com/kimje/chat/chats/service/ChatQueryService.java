@@ -21,24 +21,25 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ChatQueryService {
 
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatUserRepository chatUserRepository;
 
-	@Transactional(readOnly = true)
+
 	public PageResponse<ChatResponseDTO.ChatInfo> getChats(Pageable pageable) {
 		Page<ChatResponseDTO.ChatInfo> chats = chatRoomRepository.getChats(pageable);
 		PageResponse<ChatResponseDTO.ChatInfo> pageResponse = PageResponse.from(chats);
 		return pageResponse;
 	}
-	@Transactional(readOnly = true)
+
 	public PageResponse<ChatResponseDTO.ChatInfo> getHotChats(Pageable pageable) {
 		Page<ChatResponseDTO.ChatInfo> hotChats = chatRoomRepository.findHotChats(pageable);
 		PageResponse<ChatResponseDTO.ChatInfo> pageResponse = PageResponse.from(hotChats);
 		return pageResponse;
 	}
-	@Transactional(readOnly = true)
+
 	public PageResponse<ChatResponseDTO.ChatInfo> getMyChats(AuthUser authUser ,Pageable pageable) {
 
 		Page<ChatResponseDTO.ChatInfo> myChats = chatUserRepository.findMyChatsWithCount(authUser.getUserId(), pageable);
@@ -48,7 +49,7 @@ public class ChatQueryService {
 
 	@Cacheable(value = "chatMembers", key = "#chatId")
 	public List<ChatResponseDTO.ChatUserInfo> getMembers(Long chatId) {
-		List<ChatUser> members = chatUserRepository.findAllByChatId(chatId);
+		List<ChatUser> members = chatUserRepository.findAllWithUserByChatId(chatId);
 
 		return members.stream()
 			.map(cu -> new ChatResponseDTO.ChatUserInfo(

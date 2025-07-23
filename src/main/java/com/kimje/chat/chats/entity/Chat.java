@@ -43,6 +43,8 @@ public class Chat {
 
 	@OneToMany(mappedBy = "chat", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private final List<ChatUser> chatUsers = new ArrayList<>();
+	@OneToMany(mappedBy = "chatId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private final List<Message> messages = new ArrayList<>();
 
 	@PrePersist
 	public void prePersist() {

@@ -34,7 +34,7 @@ public class SystemMessageEventListener {
 		Message systemMessage = messageCommandService.saveSystemMessage(event.getChatId(), content, MessageType.NOTICE_KICK);
 
 		String destination = "/sub/chats/" + event.getChatId();
-		messagingTemplate.convertAndSend(destination, MessageResponseDTO.of(systemMessage));
+		messagingTemplate.convertAndSend(destination, MessageResponseDTO.of(systemMessage, event.getKickedUserId()));
 	}
 
 	@TransactionalEventListener // 트랜잭션 커밋 후 실행 보장

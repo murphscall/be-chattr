@@ -1,28 +1,30 @@
 spring:
   # 🎯 로컬: 기본값 제공으로 편의성 증대
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/chat_test}
-    username: ${DB_USERNAME:root}
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
     password: ${DB_PASS:password}
+
 
   jpa:
     hibernate:
       ddl-auto: create-drop
     show-sql: true  # 🎯 로컬: SQL 로그 출력
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.H2Dialect
 
   # 🎯 로컬: 고정 Redis
-  data:
-    redis:
-      host: localhost
-      port: 6379
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
 
   # 🎯 로컬: 테스트 메일 (MailHog 등)
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    username: ${SPRING_MAIL_USERNAME:dummy}
+    password: ${SPRING_MAIL_PASSWORD:dummy}
     properties:
       mail:
         smtp:
@@ -45,8 +47,8 @@ spring:
             redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
 
 jwt:
-  secret: lWA/Sxv1D7XUvjzmXsLgwjcAtMo1Tp6ZBz5tEeAUbPw=
-  access-token-validity-in-ms: 3600000
+  secret: ${JWT_SECRET:dummy}
+  access-token-validity-in-ms: ${JWT_ACCESS_EXPIRATION:dummy}
 
 # 🎯 로컬: 디버그 로깅
 logging:
