@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ${DOCKER_USERNAME}/chattr:latest
+    image: kimje22/chattr:latest
     container_name: chattr
     ports:
       - "8080:8080"
@@ -10,8 +10,6 @@ services:
     depends_on:
       - mysql
       - redis
-    env_file:
-      - ./.env
     networks:
       - chattr-network
 
