@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: kimje22/chattr:latest
+    image: ${ECR_REGISTRY}/be-chattr-server:latest
     container_name: chattr
     ports:
       - "8080:8080"
